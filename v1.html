@@ -1,0 +1,1305 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pranjali Main — Materials Science & Aerospace</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void:    #02030a;
+    --deep:    #060918;
+    --surface: #0b1128;
+    --panel:   #0f1a36;
+    --plasma:  #ff6b2b;
+    --plasma2: #ffaa44;
+    --ion:     #4db8ff;
+    --ion2:    #a0d8ff;
+    --neutron: #e8f4ff;
+    --muted:   #3d5280;
+    --border:  rgba(77,184,255,0.08);
+    --border2: rgba(255,107,43,0.12);
+    --text:    #cce0ff;
+    --faint:   rgba(204,224,255,0.45);
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--void);
+    color: var(--text);
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE ── */
+  body::before {
+    content:''; position:fixed; inset:0; z-index:9000; pointer-events:none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.03;
+  }
+
+  /* ── CURSOR ── */
+  .cursor {
+    position:fixed; z-index:9999; pointer-events:none;
+    width:8px; height:8px;
+    background:var(--plasma); border-radius:50%;
+    transform:translate(-50%,-50%);
+    transition:transform 0.08s, width 0.25s, height 0.25s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    position:fixed; z-index:9998; pointer-events:none;
+    width:36px; height:36px;
+    border:1px solid rgba(77,184,255,0.5);
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+    transition:left 0.14s ease-out, top 0.14s ease-out, width 0.3s, height 0.3s, border-color 0.3s;
+  }
+  .cursor.hov { width:4px; height:4px; }
+  .cursor-ring.hov { width:56px; height:56px; border-color:var(--plasma); }
+
+  /* ── LOADER ── */
+  #loader {
+    position:fixed; inset:0; z-index:10000;
+    background:var(--void);
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:16px;
+    transition:opacity 0.7s 0.5s, visibility 0.7s 0.5s;
+  }
+  #loader.gone { opacity:0; visibility:hidden; }
+  .ld-ring {
+    width:80px; height:80px; position:relative;
+  }
+  .ld-ring svg { width:100%; height:100%; animation: ldSpin 2s linear infinite; }
+  @keyframes ldSpin { to { transform: rotate(360deg); } }
+  .ld-text {
+    font-family:'Orbitron'; font-size:0.65rem;
+    letter-spacing:0.35em; color:var(--muted);
+    text-transform:uppercase;
+    animation:ldBlink 1s ease-in-out infinite;
+  }
+  @keyframes ldBlink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  .ld-bar { width:180px; height:1px; background:rgba(77,184,255,0.15); }
+  .ld-fill { height:100%; background:var(--ion); animation:ldLoad 1.8s cubic-bezier(0.77,0,0.18,1) forwards; }
+  @keyframes ldLoad { from{width:0;} to{width:100%;} }
+
+  /* ── STARFIELD canvas ── */
+  #stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+  /* ── NAV ── */
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    padding:20px 52px;
+    display:flex; justify-content:space-between; align-items:center;
+    background:rgba(2,3,10,0.6);
+    backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-id {
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .nav-name {
+    font-family:'Orbitron'; font-size:0.78rem;
+    letter-spacing:0.2em; color:var(--neutron);
+  }
+  .nav-role {
+    font-size:0.6rem; letter-spacing:0.18em;
+    color:var(--plasma); text-transform:uppercase;
+  }
+  .nav-links { display:flex; gap:36px; }
+  .nav-links a {
+    font-size:0.62rem; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--muted);
+    text-decoration:none; transition:color 0.25s;
+    position:relative;
+  }
+  .nav-links a::before {
+    content:attr(data-n);
+    position:absolute; left:0; bottom:-3px;
+    font-size:0.48rem; color:var(--ion); opacity:0;
+    transition:opacity 0.25s;
+  }
+  .nav-links a:hover { color:var(--ion); }
+  .nav-links a:hover::before { opacity:1; }
+  .nav-avail {
+    display:flex; align-items:center; gap:8px;
+    font-size:0.6rem; letter-spacing:0.12em; color:var(--muted);
+  }
+  .avail-dot {
+    width:6px; height:6px; border-radius:50%;
+    background:#4ade80; box-shadow:0 0 10px #4ade80;
+    animation:avPulse 2s infinite;
+  }
+  @keyframes avPulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  /* ── HERO ── */
+  #hero {
+    position:relative; min-height:100vh;
+    display:flex; flex-direction:column;
+    justify-content:flex-end;
+    padding:0 52px 80px;
+    overflow:hidden;
+  }
+
+  /* Atmospheric glow */
+  .atmo {
+    position:absolute; border-radius:50%;
+    pointer-events:none; filter:blur(90px);
+  }
+  .atmo-1 {
+    width:600px; height:600px;
+    background:radial-gradient(circle, rgba(255,107,43,0.07), transparent 70%);
+    top:-100px; right:-80px;
+    animation:atmoF 10s ease-in-out infinite;
+  }
+  .atmo-2 {
+    width:500px; height:500px;
+    background:radial-gradient(circle, rgba(77,184,255,0.08), transparent 70%);
+    bottom:0; left:-60px;
+    animation:atmoF 14s ease-in-out infinite reverse;
+  }
+  @keyframes atmoF { 0%,100%{transform:translate(0,0);} 50%{transform:translate(20px,-30px);} }
+
+  /* Orbital molecule SVG */
+  .hero-molecule {
+    position:absolute; right:5%; top:50%;
+    transform:translateY(-50%);
+    width:420px; height:420px;
+    pointer-events:none;
+  }
+  .mol-orbit { transform-origin:210px 210px; }
+  .mol-orbit-1 { animation:orbRot 12s linear infinite; }
+  .mol-orbit-2 { animation:orbRot 18s linear infinite reverse; }
+  .mol-orbit-3 { animation:orbRot 25s linear infinite; }
+  .mol-core   { animation:corePulse 3s ease-in-out infinite; transform-origin:210px 210px; }
+  @keyframes orbRot  { to{transform:rotate(360deg);} }
+  @keyframes corePulse { 0%,100%{opacity:1;r:14} 50%{opacity:0.6;} }
+
+  /* Hero content */
+  .hero-eyebrow {
+    font-size:0.65rem; letter-spacing:0.3em;
+    text-transform:uppercase; color:var(--ion);
+    margin-bottom:16px;
+    opacity:0; animation:fadeUp 0.8s 0.6s forwards;
+  }
+  .hero-name {
+    font-family:'Orbitron'; font-weight:700;
+    font-size:clamp(3.5rem, 8vw, 7.5rem);
+    line-height:0.95; letter-spacing:-0.02em;
+    color:var(--neutron);
+    opacity:0; animation:fadeUp 0.9s 0.8s forwards;
+  }
+  .hero-name .line2 {
+    display:block; color:transparent;
+    -webkit-text-stroke:1px rgba(77,184,255,0.35);
+    font-size:0.85em;
+  }
+  .hero-spec {
+    margin-top:24px;
+    display:flex; flex-wrap:wrap; gap:10px;
+    opacity:0; animation:fadeUp 0.8s 1s forwards;
+  }
+  .spec-chip {
+    padding:5px 14px;
+    border:1px solid var(--border2);
+    font-size:0.6rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--plasma2);
+    background:rgba(255,107,43,0.04);
+    clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);
+  }
+  .hero-tagline {
+    margin-top:32px; max-width:480px;
+    font-family:'Libre Baskerville'; font-style:italic;
+    font-size:1.05rem; line-height:1.7;
+    color:var(--faint);
+    opacity:0; animation:fadeUp 0.8s 1.2s forwards;
+  }
+  .hero-tagline strong { color:var(--text); font-style:normal; }
+  .hero-ctas {
+    margin-top:44px; display:flex; gap:14px;
+    opacity:0; animation:fadeUp 0.8s 1.4s forwards;
+  }
+  .btn-fire {
+    padding:13px 30px;
+    background:linear-gradient(135deg, var(--plasma), var(--plasma2));
+    color:var(--void); font-family:'JetBrains Mono';
+    font-size:0.7rem; font-weight:500;
+    letter-spacing:0.12em; text-transform:uppercase;
+    border:none; cursor:none;
+    clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+    transition:filter 0.25s, transform 0.2s;
+  }
+  .btn-fire:hover { filter:brightness(1.2); transform:translateY(-2px); }
+  .btn-wire {
+    padding:13px 30px;
+    background:transparent; color:var(--ion);
+    font-family:'JetBrains Mono'; font-size:0.7rem;
+    letter-spacing:0.12em; text-transform:uppercase;
+    border:1px solid rgba(77,184,255,0.25); cursor:none;
+    clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));
+    transition:border-color 0.3s, color 0.3s;
+  }
+  .btn-wire:hover { border-color:var(--ion); color:var(--neutron); }
+
+  .scroll-cue {
+    position:absolute; bottom:28px; right:52px;
+    display:flex; align-items:center; gap:12px;
+    font-size:0.6rem; letter-spacing:0.25em;
+    text-transform:uppercase; color:var(--muted);
+    opacity:0; animation:fadeUp 1s 1.8s forwards;
+  }
+  .scroll-line {
+    width:50px; height:1px;
+    background:linear-gradient(90deg,var(--muted),transparent);
+    animation:sLinePulse 1.5s ease-in-out infinite;
+  }
+  @keyframes sLinePulse { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+
+  @keyframes fadeUp {
+    from{opacity:0;transform:translateY(28px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+
+  /* ── DATA TAPE ── */
+  .data-tape {
+    position:relative; z-index:2;
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+    background:rgba(11,17,40,0.6);
+    overflow:hidden; padding:12px 0;
+  }
+  .tape-track {
+    display:flex; gap:0; white-space:nowrap;
+    animation:tapeScroll 28s linear infinite;
+  }
+  @keyframes tapeScroll { to { transform:translateX(-50%); } }
+  .tape-item {
+    display:inline-flex; align-items:center; gap:48px;
+    font-size:0.6rem; letter-spacing:0.2em;
+    text-transform:uppercase; color:var(--muted);
+    padding:0 48px; flex-shrink:0;
+  }
+  .tape-sep { color:var(--plasma); opacity:0.6; font-size:0.5rem; }
+
+  /* ── SECTIONS ── */
+  section { padding:110px 52px; position:relative; z-index:2; }
+  .s-tag {
+    font-size:0.6rem; letter-spacing:0.28em;
+    text-transform:uppercase; color:var(--plasma);
+    margin-bottom:10px; display:flex; align-items:center; gap:12px;
+  }
+  .s-tag::before { content:''; display:block; width:30px; height:1px; background:var(--plasma); }
+  .s-title {
+    font-family:'Orbitron'; font-weight:600;
+    font-size:clamp(2rem,4.5vw,3.2rem);
+    line-height:1.1; color:var(--neutron);
+    margin-bottom:60px;
+  }
+  .s-title em {
+    font-family:'Libre Baskerville'; font-style:italic;
+    font-weight:400; color:var(--faint);
+  }
+
+  /* ── ABOUT ── */
+  #about { background:var(--deep); }
+  .about-grid { display:grid; grid-template-columns:1fr 1.2fr; gap:80px; align-items:start; }
+  .about-left {}
+  /* Lattice card */
+  .lattice-card {
+    position:relative; aspect-ratio:1; max-width:400px;
+    border:1px solid var(--border);
+    background:var(--surface);
+    clip-path:polygon(0 0,calc(100% - 28px) 0,100% 28px,100% 100%,28px 100%,0 calc(100% - 28px));
+    overflow:hidden;
+  }
+  .lattice-svg {
+    width:100%; height:100%;
+    position:absolute; inset:0;
+    opacity:0.15;
+  }
+  .lattice-content {
+    position:relative; z-index:2;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    height:100%; padding:32px; text-align:center;
+  }
+  .lc-initials {
+    font-family:'Orbitron'; font-size:5rem; font-weight:900;
+    color:transparent;
+    -webkit-text-stroke:1px rgba(77,184,255,0.3);
+    line-height:1; margin-bottom:16px;
+  }
+  .lc-loc {
+    font-size:0.62rem; letter-spacing:0.2em;
+    text-transform:uppercase; color:var(--ion);
+    margin-bottom:24px;
+  }
+  .lc-stats {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:1px; background:var(--border); width:100%;
+  }
+  .lc-stat {
+    background:var(--surface); padding:16px 12px; text-align:center;
+  }
+  .lc-stat-n {
+    font-family:'Orbitron'; font-size:1.6rem;
+    font-weight:700; color:var(--plasma2); line-height:1;
+  }
+  .lc-stat-l {
+    font-size:0.52rem; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--muted); margin-top:4px;
+  }
+  .lattice-scan {
+    position:absolute; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,transparent,var(--ion),transparent);
+    animation:latScan 3.5s ease-in-out infinite;
+    z-index:3; opacity:0.5;
+  }
+  @keyframes latScan { 0%{top:0;} 100%{top:100%;} }
+
+  .about-right {}
+  .about-text p {
+    font-size:0.9rem; line-height:1.9;
+    color:var(--faint); margin-bottom:18px;
+  }
+  .about-text p strong { color:var(--text); font-weight:500; }
+  .about-text p em { color:var(--plasma2); font-style:italic; }
+  .interest-grid {
+    margin-top:32px;
+    display:flex; flex-wrap:wrap; gap:7px;
+  }
+  .interest-tag {
+    padding:5px 12px;
+    border:1px solid var(--border);
+    font-size:0.58rem; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--muted);
+    clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);
+    transition:border-color 0.3s,color 0.3s,background 0.3s;
+  }
+  .interest-tag:hover {
+    border-color:var(--ion); color:var(--ion);
+    background:rgba(77,184,255,0.04);
+  }
+
+  /* ── EDUCATION ── */
+  #education { background:var(--void); }
+  .edu-stack { display:flex; flex-direction:column; gap:1px; background:var(--border); }
+  .edu-card {
+    background:var(--void); padding:48px 52px;
+    display:grid; grid-template-columns:auto 1fr auto;
+    gap:40px; align-items:start;
+    position:relative; overflow:hidden;
+    transition:background 0.3s;
+  }
+  .edu-card::after {
+    content:''; position:absolute;
+    bottom:0; left:52px; right:52px; height:1px;
+    background:linear-gradient(90deg,var(--border),transparent);
+  }
+  .edu-card:hover { background:rgba(77,184,255,0.015); }
+  .edu-year {
+    font-family:'Orbitron'; font-size:0.62rem;
+    color:var(--ion); letter-spacing:0.12em;
+    padding-top:4px;
+  }
+  .edu-main h3 {
+    font-family:'Orbitron'; font-size:1rem;
+    font-weight:600; color:var(--neutron);
+    margin-bottom:6px; letter-spacing:0.04em;
+  }
+  .edu-main .inst {
+    font-family:'Libre Baskerville'; font-style:italic;
+    font-size:0.82rem; color:var(--faint); margin-bottom:10px;
+  }
+  .edu-main .loc {
+    font-size:0.6rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--muted);
+  }
+  .edu-grade {
+    text-align:right;
+  }
+  .grade-n {
+    font-family:'Orbitron'; font-size:2rem;
+    font-weight:700;
+    background:linear-gradient(135deg,var(--plasma),var(--plasma2));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    background-clip:text;
+    line-height:1;
+  }
+  .grade-l { font-size:0.58rem; letter-spacing:0.1em; color:var(--muted); text-transform:uppercase; }
+  .edu-badge {
+    display:inline-block; margin-top:10px;
+    padding:4px 10px;
+    border:1px solid rgba(255,170,68,0.25);
+    font-size:0.55rem; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--plasma2);
+  }
+
+  /* ── EXPERIENCE ── */
+  #experience { background:var(--deep); }
+  .exp-container { display:flex; flex-direction:column; gap:1px; background:var(--border); }
+  .exp-block {
+    background:var(--deep); padding:52px;
+    display:grid; grid-template-columns:240px 1fr;
+    gap:56px; align-items:start;
+    position:relative; overflow:hidden;
+    transition:background 0.35s;
+  }
+  .exp-block::before {
+    content:''; position:absolute;
+    left:0; top:0; bottom:0; width:3px;
+    background:linear-gradient(to bottom,var(--plasma),var(--plasma2));
+    transform:scaleY(0); transform-origin:top;
+    transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  }
+  .exp-block:hover { background:rgba(255,107,43,0.015); }
+  .exp-block:hover::before { transform:scaleY(1); }
+  .exp-left {}
+  .exp-period {
+    font-size:0.6rem; letter-spacing:0.15em;
+    text-transform:uppercase; color:var(--plasma);
+    margin-bottom:6px;
+  }
+  .exp-org {
+    font-family:'Orbitron'; font-size:0.9rem;
+    font-weight:600; color:var(--neutron);
+    letter-spacing:0.06em; margin-bottom:4px;
+  }
+  .exp-org-sub {
+    font-size:0.62rem; color:var(--muted);
+    letter-spacing:0.1em; text-transform:uppercase;
+  }
+  .exp-right h3 {
+    font-family:'Libre Baskerville'; font-size:1.3rem;
+    color:var(--text); margin-bottom:16px; font-weight:400;
+  }
+  .exp-right h3 em { color:var(--plasma2); }
+  .exp-bullets { list-style:none; }
+  .exp-bullets li {
+    font-size:0.8rem; line-height:1.8;
+    color:var(--faint); padding-left:20px;
+    position:relative; margin-bottom:8px;
+  }
+  .exp-bullets li::before {
+    content:'▸'; position:absolute; left:0;
+    color:var(--ion); font-size:0.7rem;
+    top:0.1em;
+  }
+  .exp-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:20px; }
+  .exp-tag {
+    padding:3px 10px;
+    border:1px solid rgba(77,184,255,0.15);
+    font-size:0.55rem; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--ion);
+  }
+
+  /* ── SKILLS ── */
+  #skills { background:var(--void); }
+  .skills-cols { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); }
+  .skill-group {
+    background:var(--void); padding:44px 48px;
+    position:relative; overflow:hidden;
+    transition:background 0.3s;
+  }
+  .skill-group:hover { background:rgba(77,184,255,0.01); }
+  .sg-label {
+    font-family:'Orbitron'; font-size:0.7rem;
+    letter-spacing:0.15em; text-transform:uppercase;
+    color:var(--ion); margin-bottom:28px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .sg-label::after { content:''; flex:1; height:1px; background:var(--border); }
+  .sg-items { display:flex; flex-direction:column; gap:14px; }
+  .sg-item {}
+  .sg-item-top {
+    display:flex; justify-content:space-between;
+    font-size:0.68rem; letter-spacing:0.08em;
+    color:var(--text); margin-bottom:7px;
+  }
+  .sg-pct { color:var(--plasma2); }
+  .sg-bar { height:2px; background:rgba(77,184,255,0.1); position:relative; }
+  .sg-fill {
+    height:100%;
+    background:linear-gradient(90deg,var(--ion),var(--plasma));
+    transform-origin:left; transform:scaleX(0);
+    transition:transform 1.3s cubic-bezier(0.16,1,0.3,1);
+  }
+  .sg-fill.live { transform:scaleX(1); }
+  .sg-glow {
+    position:absolute; right:0; top:50%;
+    width:6px; height:6px; border-radius:50%;
+    background:var(--plasma);
+    transform:translate(50%,-50%);
+    box-shadow:0 0 12px var(--plasma);
+  }
+
+  /* Soft Skills / Languages */
+  .pill-cloud { display:flex; flex-wrap:wrap; gap:8px; }
+  .pill {
+    padding:7px 16px;
+    background:rgba(77,184,255,0.04);
+    border:1px solid var(--border);
+    font-size:0.62rem; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--muted);
+    clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);
+    transition:color 0.3s,border-color 0.3s;
+  }
+  .pill:hover { color:var(--ion); border-color:rgba(77,184,255,0.3); }
+
+  /* ── PROJECTS ── */
+  #projects { background:var(--deep); }
+  .proj-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); }
+  .proj-card {
+    background:var(--deep); padding:48px;
+    position:relative; overflow:hidden;
+    transition:background 0.3s; cursor:none;
+  }
+  .proj-card:hover { background:rgba(255,107,43,0.015); }
+  .proj-num {
+    font-family:'Orbitron'; font-size:4.5rem;
+    font-weight:900; color:rgba(255,255,255,0.03);
+    line-height:1; margin-bottom:-10px;
+  }
+  .proj-title {
+    font-family:'Libre Baskerville'; font-size:1.25rem;
+    color:var(--text); margin-bottom:12px;
+    transition:color 0.3s; line-height:1.3;
+  }
+  .proj-card:hover .proj-title { color:var(--plasma2); }
+  .proj-desc {
+    font-size:0.78rem; line-height:1.8;
+    color:var(--faint); margin-bottom:20px;
+  }
+  .proj-link {
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:0.62rem; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--plasma);
+    text-decoration:none; transition:gap 0.3s;
+  }
+  .proj-link:hover { gap:14px; }
+  .proj-arr {
+    width:18px; height:1px; background:var(--plasma);
+    position:relative; transition:width 0.3s;
+  }
+  .proj-link:hover .proj-arr { width:28px; }
+  .proj-arr::after {
+    content:''; position:absolute;
+    right:0; top:50%;
+    width:5px; height:5px;
+    border-right:1px solid var(--plasma);
+    border-top:1px solid var(--plasma);
+    transform:translate(0,-50%) rotate(45deg);
+  }
+  /* Viz panel for featured */
+  .proj-card.feat {
+    grid-column:1/-1;
+    display:grid; grid-template-columns:1.2fr 1fr; gap:56px; align-items:center;
+    background:linear-gradient(135deg,rgba(255,107,43,0.025),transparent);
+  }
+  .feat-vis {
+    aspect-ratio:16/9;
+    background:var(--surface);
+    border:1px solid var(--border);
+    position:relative; overflow:hidden;
+    clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px));
+  }
+  .feat-vis canvas { width:100%; height:100%; display:block; }
+
+  /* ── ACHIEVEMENTS ── */
+  #achievements { background:var(--void); }
+  .ach-list { display:flex; flex-direction:column; gap:1px; background:var(--border); }
+  .ach-item {
+    background:var(--void); padding:32px 48px;
+    display:flex; align-items:center; gap:40px;
+    transition:background 0.3s; position:relative; overflow:hidden;
+  }
+  .ach-item::before {
+    content:''; position:absolute; left:0; top:0; bottom:0;
+    width:2px; background:var(--plasma2);
+    transform:scaleY(0); transform-origin:center;
+    transition:transform 0.4s;
+  }
+  .ach-item:hover { background:rgba(255,170,68,0.02); }
+  .ach-item:hover::before { transform:scaleY(1); }
+  .ach-star {
+    font-size:1rem; color:var(--plasma2); flex-shrink:0;
+    filter:drop-shadow(0 0 8px var(--plasma2));
+  }
+  .ach-text { flex:1; }
+  .ach-name {
+    font-family:'Libre Baskerville'; font-size:1rem;
+    color:var(--text); margin-bottom:4px;
+  }
+  .ach-date {
+    font-size:0.6rem; letter-spacing:0.18em;
+    text-transform:uppercase; color:var(--muted);
+  }
+
+  /* ── CONTACT ── */
+  #contact {
+    background:var(--deep); text-align:center;
+    position:relative; overflow:hidden;
+  }
+  .contact-bg-text {
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    font-family:'Orbitron'; font-size:18vw; font-weight:900;
+    color:rgba(77,184,255,0.012); white-space:nowrap;
+    pointer-events:none; user-select:none;
+    letter-spacing:0.05em;
+  }
+  .contact-inner { position:relative; z-index:2; }
+  .contact-email {
+    font-family:'Libre Baskerville'; font-style:italic;
+    font-size:clamp(1.8rem,4vw,3.5rem);
+    color:var(--text); text-decoration:none;
+    display:inline-block; margin:28px 0 44px;
+    position:relative; transition:color 0.3s;
+  }
+  .contact-email::after {
+    content:''; position:absolute;
+    left:0; bottom:-4px; right:0; height:1px;
+    background:linear-gradient(90deg,var(--plasma),var(--plasma2));
+    transform:scaleX(0); transition:transform 0.4s;
+  }
+  .contact-email:hover { color:var(--plasma2); }
+  .contact-email:hover::after { transform:scaleX(1); }
+  .contact-phone {
+    font-size:0.75rem; letter-spacing:0.15em;
+    color:var(--muted); margin-bottom:40px; display:block;
+  }
+  .social-row {
+    display:flex; justify-content:center; gap:14px; margin-bottom:80px;
+  }
+  .soc-link {
+    padding:11px 22px;
+    border:1px solid var(--border);
+    font-size:0.62rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--muted);
+    text-decoration:none;
+    clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);
+    transition:border-color 0.3s,color 0.3s;
+  }
+  .soc-link:hover { border-color:var(--ion); color:var(--ion); }
+
+  /* ── FOOTER ── */
+  footer {
+    padding:22px 52px;
+    border-top:1px solid var(--border);
+    display:flex; justify-content:space-between;
+    align-items:center; position:relative; z-index:2;
+    font-size:0.58rem; letter-spacing:0.12em;
+    text-transform:uppercase; color:var(--muted);
+  }
+
+  /* ── REVEALS ── */
+  .rv { opacity:0; transform:translateY(36px); transition:opacity 0.8s,transform 0.8s; }
+  .rv.in { opacity:1; transform:translateY(0); }
+  .rv.d1 { transition-delay:0.1s; }
+  .rv.d2 { transition-delay:0.2s; }
+  .rv.d3 { transition-delay:0.3s; }
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="ld-ring">
+    <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="36" stroke="rgba(77,184,255,0.1)" stroke-width="1"/>
+      <path d="M40 4 A36 36 0 0 1 76 40" stroke="#ff6b2b" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="40" cy="4" r="3" fill="#ff6b2b"/>
+    </svg>
+  </div>
+  <div class="ld-text">Initializing // Pranjali.Main</div>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
+</div>
+
+<!-- CURSOR -->
+<div class="cursor" id="cur"></div>
+<div class="cursor-ring" id="curR"></div>
+
+<!-- STARFIELD -->
+<canvas id="stars"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-id">
+    <div class="nav-name">Pranjali Main</div>
+    <div class="nav-role">Materials Science · Aerospace</div>
+  </div>
+  <div class="nav-links">
+    <a href="#about" data-n="01">About</a>
+    <a href="#education" data-n="02">Education</a>
+    <a href="#experience" data-n="03">Experience</a>
+    <a href="#skills" data-n="04">Skills</a>
+    <a href="#projects" data-n="05">Projects</a>
+    <a href="#contact" data-n="06">Contact</a>
+  </div>
+  <div class="nav-avail">
+    <div class="avail-dot"></div>
+    M.Tech 2025–2027
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="atmo atmo-1"></div>
+  <div class="atmo atmo-2"></div>
+
+  <!-- Orbital molecule -->
+  <svg class="hero-molecule" viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- outer rings -->
+    <g class="mol-orbit mol-orbit-1">
+      <ellipse cx="210" cy="210" rx="190" ry="70" stroke="rgba(77,184,255,0.12)" stroke-width="1" stroke-dasharray="4 10"/>
+      <circle cx="400" cy="210" r="7" fill="#4db8ff" opacity="0.8"/>
+      <circle cx="20" cy="210" r="5" fill="#4db8ff" opacity="0.4"/>
+    </g>
+    <g class="mol-orbit mol-orbit-2">
+      <ellipse cx="210" cy="210" rx="70" ry="190" stroke="rgba(255,107,43,0.1)" stroke-width="1" stroke-dasharray="2 12"/>
+      <circle cx="210" cy="20" r="7" fill="#ff6b2b" opacity="0.7"/>
+      <circle cx="210" cy="400" r="5" fill="#ff6b2b" opacity="0.4"/>
+    </g>
+    <g class="mol-orbit mol-orbit-3">
+      <ellipse cx="210" cy="210" rx="150" ry="100" stroke="rgba(232,244,255,0.05)" stroke-width="1" stroke-dasharray="6 16"/>
+      <circle cx="360" cy="210" r="4" fill="#e8f4ff" opacity="0.5"/>
+    </g>
+    <!-- core -->
+    <g class="mol-core">
+      <circle cx="210" cy="210" r="18" fill="rgba(255,107,43,0.15)" stroke="rgba(255,107,43,0.4)" stroke-width="1"/>
+      <circle cx="210" cy="210" r="10" fill="rgba(255,107,43,0.3)"/>
+      <circle cx="210" cy="210" r="5"  fill="#ff6b2b"/>
+    </g>
+    <!-- bond lines -->
+    <line x1="210" y1="210" x2="360" y2="130" stroke="rgba(77,184,255,0.07)" stroke-width="1"/>
+    <line x1="210" y1="210" x2="80"  y2="300" stroke="rgba(77,184,255,0.07)" stroke-width="1"/>
+    <line x1="210" y1="210" x2="340" y2="330" stroke="rgba(255,107,43,0.06)" stroke-width="1"/>
+  </svg>
+
+  <div class="hero-eyebrow">// Materials Science & Technology · Aerospace Engineering</div>
+  <h1 class="hero-name">
+    PRANJALI<span class="line2">MAIN</span>
+  </h1>
+  <div class="hero-spec">
+    <span class="spec-chip">FEA / CFD</span>
+    <span class="spec-chip">Composites</span>
+    <span class="spec-chip">Propulsion</span>
+    <span class="spec-chip">Simulation</span>
+    <span class="spec-chip">Fine Arts Minor</span>
+    <span class="spec-chip">NASA Hackathon Qualifier</span>
+  </div>
+  <p class="hero-tagline">
+    Engineer at the frontier of <strong>materials science</strong> and <strong>aerospace</strong> — using simulation, structural analysis, and a painter's eye to push what's possible in propulsion and composites.
+  </p>
+  <div class="hero-ctas">
+    <button class="btn-fire" onclick="document.getElementById('experience').scrollIntoView({behavior:'smooth'})">View Experience</button>
+    <button class="btn-wire" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Get In Touch</button>
+  </div>
+  <div class="scroll-cue"><div class="scroll-line"></div>Scroll to explore</div>
+</section>
+
+<!-- DATA TAPE -->
+<div class="data-tape">
+  <div class="tape-track">
+    <span class="tape-item">IIST Thiruvananthapuram <span class="tape-sep">◆</span></span>
+    <span class="tape-item">Amity University Mumbai <span class="tape-sep">◆</span></span>
+    <span class="tape-item">CGPA 9.0 M.Tech <span class="tape-sep">◆</span></span>
+    <span class="tape-item">Godrej Aerospace <span class="tape-sep">◆</span></span>
+    <span class="tape-item">Feynman Aerospace <span class="tape-sep">◆</span></span>
+    <span class="tape-item">NASA Space Hackathon <span class="tape-sep">◆</span></span>
+    <span class="tape-item">FOSSAE Scilab 2nd Prize <span class="tape-sep">◆</span></span>
+    <span class="tape-item">Ansys · SolidWorks · MATLAB <span class="tape-sep">◆</span></span>
+    <span class="tape-item">IIST Thiruvananthapuram <span class="tape-sep">◆</span></span>
+    <span class="tape-item">Amity University Mumbai <span class="tape-sep">◆</span></span>
+    <span class="tape-item">CGPA 9.0 M.Tech <span class="tape-sep">◆</span></span>
+    <span class="tape-item">Godrej Aerospace <span class="tape-sep">◆</span></span>
+    <span class="tape-item">Feynman Aerospace <span class="tape-sep">◆</span></span>
+    <span class="tape-item">NASA Space Hackathon <span class="tape-sep">◆</span></span>
+    <span class="tape-item">FOSSAE Scilab 2nd Prize <span class="tape-sep">◆</span></span>
+    <span class="tape-item">Ansys · SolidWorks · MATLAB <span class="tape-sep">◆</span></span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-grid">
+    <div class="about-left rv">
+      <div class="lattice-card">
+        <svg class="lattice-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <!-- Crystal lattice pattern -->
+          <defs><pattern id="lat" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+            <rect width="40" height="40" fill="none"/>
+            <circle cx="0" cy="0" r="2" fill="#4db8ff"/>
+            <circle cx="40" cy="0" r="2" fill="#4db8ff"/>
+            <circle cx="0" cy="40" r="2" fill="#4db8ff"/>
+            <circle cx="40" cy="40" r="2" fill="#4db8ff"/>
+            <circle cx="20" cy="20" r="2" fill="#ff6b2b"/>
+            <line x1="0" y1="0" x2="20" y2="20" stroke="#4db8ff" stroke-width="0.5" opacity="0.5"/>
+            <line x1="40" y1="0" x2="20" y2="20" stroke="#4db8ff" stroke-width="0.5" opacity="0.5"/>
+            <line x1="0" y1="40" x2="20" y2="20" stroke="#4db8ff" stroke-width="0.5" opacity="0.5"/>
+            <line x1="40" y1="40" x2="20" y2="20" stroke="#4db8ff" stroke-width="0.5" opacity="0.5"/>
+          </pattern></defs>
+          <rect width="400" height="400" fill="url(#lat)"/>
+        </svg>
+        <div class="lattice-scan"></div>
+        <div class="lattice-content">
+          <div class="lc-initials">PM</div>
+          <div class="lc-loc">📍 Thane, Maharashtra · Kerala</div>
+          <div class="lc-stats">
+            <div class="lc-stat"><div class="lc-stat-n">9.0</div><div class="lc-stat-l">M.Tech CGPA</div></div>
+            <div class="lc-stat"><div class="lc-stat-n">8.04</div><div class="lc-stat-l">B.Tech CGPA</div></div>
+            <div class="lc-stat"><div class="lc-stat-n">2+</div><div class="lc-stat-l">Internships</div></div>
+            <div class="lc-stat"><div class="lc-stat-n">3+</div><div class="lc-stat-l">Certifications</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="about-right rv d2">
+      <div class="s-tag">01 // About</div>
+      <h2 class="s-title">Where science<br>meets <em>imagination</em></h2>
+      <div class="about-text">
+        <p>I'm a <strong>materials scientist and aerospace engineer</strong> currently pursuing my M.Tech at IIST, Thiruvananthapuram — one of India's most prestigious space-tech institutions. I work at the intersection of <em>structural simulation, propulsion chemistry, and composites</em>.</p>
+        <p>My B.Tech in Aerospace Engineering at Amity Mumbai included a <strong>Minor in Fine Arts</strong> — a combination that shapes how I see engineering problems: with both analytical rigor and creative precision. I believe the best simulations, like the best art, reveal hidden truths about the physical world.</p>
+        <p>Whether it's modeling acoustic propagation, navigating drones on Mars, or optimizing lab workflows at <strong>Godrej Aerospace</strong>, I bring meticulous attention and a drive to push boundaries.</p>
+      </div>
+      <div class="interest-grid">
+        <span class="interest-tag">Materials</span>
+        <span class="interest-tag">R&amp;D</span>
+        <span class="interest-tag">Structural Analysis</span>
+        <span class="interest-tag">Composites</span>
+        <span class="interest-tag">Polymers</span>
+        <span class="interest-tag">Propulsion Systems</span>
+        <span class="interest-tag">Rocket Propellants</span>
+        <span class="interest-tag">Modelling &amp; Simulation</span>
+        <span class="interest-tag">CFD</span>
+        <span class="interest-tag">Fine Arts</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="s-tag rv">02 // Education</div>
+  <h2 class="s-title rv">Academic<br><em>trajectory</em></h2>
+  <div class="edu-stack">
+    <div class="edu-card rv">
+      <div class="edu-year">2025 — 2027</div>
+      <div class="edu-main">
+        <h3>M.Tech — Materials Science & Technology</h3>
+        <div class="inst">Indian Institute of Space Science & Technology (IIST)</div>
+        <div class="loc">Department of Chemistry · Thiruvananthapuram, Kerala</div>
+        <span class="edu-badge">Space-Tech Institution · ISRO Affiliated</span>
+      </div>
+      <div class="edu-grade">
+        <div class="grade-n">9.0</div>
+        <div class="grade-l">CGPA</div>
+      </div>
+    </div>
+    <div class="edu-card rv d1">
+      <div class="edu-year">2021 — 2025</div>
+      <div class="edu-main">
+        <h3>B.Tech — Aerospace Engineering</h3>
+        <div class="inst">Amity University Mumbai</div>
+        <div class="loc">Mumbai, Maharashtra</div>
+        <span class="edu-badge">+ Minor in Fine Arts</span>
+      </div>
+      <div class="edu-grade">
+        <div class="grade-n">8.04</div>
+        <div class="grade-l">CGPA</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="s-tag rv">03 // Experience</div>
+  <h2 class="s-title rv">Where theory<br><em>becomes practice</em></h2>
+  <div class="exp-container">
+    <div class="exp-block rv">
+      <div class="exp-left">
+        <div class="exp-period">Jul 2024 – Nov 2024</div>
+        <div class="exp-org">Feynman Aerospace</div>
+        <div class="exp-org-sub">Internship</div>
+      </div>
+      <div class="exp-right">
+        <h3><em>FEA / CFD Trainee</em> & Intern</h3>
+        <ul class="exp-bullets">
+          <li>Applied FEA and CFD for structural, thermal, and aerodynamic analysis across aerospace components.</li>
+          <li>Developed high-fidelity simulation models with optimized meshing strategies and precisely tuned boundary conditions.</li>
+          <li>Analyzed stress distributions, heat transfer pathways, and airflow characteristics for performance evaluation.</li>
+          <li>Produced detailed technical reports translating simulation output into actionable engineering insights.</li>
+        </ul>
+        <div class="exp-tags">
+          <span class="exp-tag">FEA</span>
+          <span class="exp-tag">CFD</span>
+          <span class="exp-tag">Ansys Workbench</span>
+          <span class="exp-tag">Meshing</span>
+          <span class="exp-tag">Thermal Analysis</span>
+          <span class="exp-tag">Aerodynamics</span>
+        </div>
+      </div>
+    </div>
+    <div class="exp-block rv d1">
+      <div class="exp-left">
+        <div class="exp-period">Jul 2023 – Aug 2023</div>
+        <div class="exp-org">Godrej Aerospace</div>
+        <div class="exp-org-sub">Vikhroli · Materials Lab</div>
+      </div>
+      <div class="exp-right">
+        <h3><em>Materials Lab</em> Intern</h3>
+        <ul class="exp-bullets">
+          <li>Project: <em>Laboratory Testing Output Improvement</em> — identified and eliminated process bottlenecks to improve testing throughput.</li>
+          <li>Designed and implemented automation strategies reducing manual errors and enhancing data integrity.</li>
+          <li>Conducted rigorous quality control protocols including equipment calibration and inter-laboratory proficiency testing.</li>
+          <li>Optimized data management workflows, contributing to higher-quality, more reproducible test outputs.</li>
+        </ul>
+        <div class="exp-tags">
+          <span class="exp-tag">Materials Testing</span>
+          <span class="exp-tag">QC/QA</span>
+          <span class="exp-tag">Process Optimization</span>
+          <span class="exp-tag">Calibration</span>
+          <span class="exp-tag">Data Management</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="s-tag rv">04 // Capabilities</div>
+  <h2 class="s-title rv">Technical<br><em>arsenal</em></h2>
+  <div class="skills-cols">
+    <div class="skill-group rv">
+      <div class="sg-label">Engineering Software</div>
+      <div class="sg-items">
+        <div class="sg-item">
+          <div class="sg-item-top"><span>Ansys Workbench</span><span class="sg-pct">90%</span></div>
+          <div class="sg-bar"><div class="sg-fill" data-w="0.9"></div><div class="sg-glow"></div></div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-item-top"><span>SolidWorks</span><span class="sg-pct">82%</span></div>
+          <div class="sg-bar"><div class="sg-fill" data-w="0.82"></div><div class="sg-glow"></div></div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-item-top"><span>MATLAB / Simulink</span><span class="sg-pct">80%</span></div>
+          <div class="sg-bar"><div class="sg-fill" data-w="0.8"></div><div class="sg-glow"></div></div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-item-top"><span>AutoCAD / Fusion 360</span><span class="sg-pct">78%</span></div>
+          <div class="sg-bar"><div class="sg-fill" data-w="0.78"></div><div class="sg-glow"></div></div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-item-top"><span>OpenVSP</span><span class="sg-pct">72%</span></div>
+          <div class="sg-bar"><div class="sg-fill" data-w="0.72"></div><div class="sg-glow"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="skill-group rv d1">
+      <div class="sg-label">Domain Expertise</div>
+      <div class="sg-items">
+        <div class="sg-item">
+          <div class="sg-item-top"><span>Structural / FEA Analysis</span><span class="sg-pct">88%</span></div>
+          <div class="sg-bar"><div class="sg-fill" data-w="0.88"></div><div class="sg-glow"></div></div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-item-top"><span>CFD & Aerodynamics</span><span class="sg-pct">84%</span></div>
+          <div class="sg-bar"><div class="sg-fill" data-w="0.84"></div><div class="sg-glow"></div></div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-item-top"><span>Materials Characterization</span><span class="sg-pct">85%</span></div>
+          <div class="sg-bar"><div class="sg-fill" data-w="0.85"></div><div class="sg-glow"></div></div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-item-top"><span>Composites & Polymers</span><span class="sg-pct">80%</span></div>
+          <div class="sg-bar"><div class="sg-fill" data-w="0.8"></div><div class="sg-glow"></div></div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-item-top"><span>Rocket Propulsion</span><span class="sg-pct">75%</span></div>
+          <div class="sg-bar"><div class="sg-fill" data-w="0.75"></div><div class="sg-glow"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="skill-group rv">
+      <div class="sg-label">Soft Skills</div>
+      <div class="pill-cloud">
+        <span class="pill">Adaptability</span>
+        <span class="pill">Collaboration</span>
+        <span class="pill">Problem Solving</span>
+        <span class="pill">Technical Reporting</span>
+        <span class="pill">Research Methodology</span>
+        <span class="pill">Creative Thinking</span>
+      </div>
+    </div>
+    <div class="skill-group rv d1">
+      <div class="sg-label">Languages</div>
+      <div class="pill-cloud">
+        <span class="pill">English</span>
+        <span class="pill">Hindi</span>
+        <span class="pill">Marathi</span>
+        <span class="pill">French</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="s-tag rv">05 // Projects</div>
+  <h2 class="s-title rv">Research &amp;<br><em>engineering work</em></h2>
+  <div class="proj-grid">
+    <div class="proj-card feat rv">
+      <div class="feat-vis" id="waveVis">
+        <canvas id="waveCanvas"></canvas>
+      </div>
+      <div>
+        <div class="proj-num">01</div>
+        <h3 class="proj-title">Modelling of Acoustic Noise due to Sonar Signal</h3>
+        <p class="proj-desc">B.Tech final project (2025). Developed computational models simulating acoustic propagation patterns generated by sonar signals — analyzing waveform behaviour, noise signatures, and environmental interactions through custom simulation pipelines.</p>
+        <div class="exp-tags" style="margin-bottom:20px">
+          <span class="exp-tag">MATLAB</span>
+          <span class="exp-tag">Acoustics</span>
+          <span class="exp-tag">Wave Modelling</span>
+          <span class="exp-tag">Signal Processing</span>
+        </div>
+        <a class="proj-link" href="#">Explore Project <span class="proj-arr"></span></a>
+      </div>
+    </div>
+    <div class="proj-card rv">
+      <div class="proj-num">02</div>
+      <h3 class="proj-title">Autonomous Drone Navigation in GPS-Denied Martian Terrain</h3>
+      <p class="proj-desc">IROC-U Competition (2024). Designed navigation algorithms for autonomous drones operating in GPS-denied extraterrestrial environments, accounting for Martian atmospheric conditions and terrain variability. Project reached Global Qualifier at NASA Space Hackathon.</p>
+      <div class="exp-tags" style="margin-bottom:20px">
+        <span class="exp-tag">Autonomous Systems</span>
+        <span class="exp-tag">Mars Simulation</span>
+        <span class="exp-tag">Navigation</span>
+        <span class="exp-tag">UAV</span>
+      </div>
+      <a class="proj-link" href="#">Explore Project <span class="proj-arr"></span></a>
+    </div>
+    <div class="proj-card rv d1">
+      <div class="proj-num">03</div>
+      <h3 class="proj-title">NPTEL Certified Research Modules</h3>
+      <p class="proj-desc">Completed advanced NPTEL courses in Rocket Propulsion, Aircraft Stability & Control, and Aircraft Performance — bridging theoretical propulsion chemistry with applied flight dynamics.</p>
+      <div class="exp-tags" style="margin-bottom:20px">
+        <span class="exp-tag">Rocket Propulsion</span>
+        <span class="exp-tag">Flight Dynamics</span>
+        <span class="exp-tag">Aircraft Performance</span>
+      </div>
+      <a class="proj-link" href="#">View Certifications <span class="proj-arr"></span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ACHIEVEMENTS -->
+<section id="achievements" style="background:var(--deep)">
+  <div class="s-tag rv">06 // Achievements</div>
+  <h2 class="s-title rv">Recognition &<br><em>milestones</em></h2>
+  <div class="ach-list">
+    <div class="ach-item rv">
+      <div class="ach-star">★</div>
+      <div class="ach-text">
+        <div class="ach-name">FOSSEE Scilab Hackathon — Second Prize</div>
+        <div class="ach-date">April 2025</div>
+      </div>
+    </div>
+    <div class="ach-item rv d1">
+      <div class="ach-star">★</div>
+      <div class="ach-text">
+        <div class="ach-name">NASA Space Hackathon — Global Qualifier (IROC-U Project)</div>
+        <div class="ach-date">October 2024</div>
+      </div>
+    </div>
+    <div class="ach-item rv d2">
+      <div class="ach-star">★</div>
+      <div class="ach-text">
+        <div class="ach-name">NPTEL Certification — Rocket Propulsion</div>
+        <div class="ach-date">Completed with Distinction</div>
+      </div>
+    </div>
+    <div class="ach-item rv d3">
+      <div class="ach-star">★</div>
+      <div class="ach-text">
+        <div class="ach-name">NPTEL Certification — Aircraft Stability and Control</div>
+        <div class="ach-date">Completed with Distinction</div>
+      </div>
+    </div>
+    <div class="ach-item rv">
+      <div class="ach-star">★</div>
+      <div class="ach-text">
+        <div class="ach-name">NPTEL Certification — Aircraft Performance</div>
+        <div class="ach-date">Completed with Distinction</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-bg-text">CONTACT</div>
+  <div class="contact-inner">
+    <div class="s-tag rv" style="justify-content:center">07 // Get In Touch</div>
+    <h2 class="s-title rv" style="text-align:center;margin-bottom:0">Open to research roles,<br><em>collaborations & opportunities</em></h2>
+    <a class="contact-email rv" href="mailto:pranjalimain000@gmail.com">pranjalimain000@gmail.com</a>
+    <span class="contact-phone rv">+91 9324134849</span>
+    <div class="social-row rv">
+      <a class="soc-link" href="https://linkedin.com/in/pranjali15" target="_blank">LinkedIn</a>
+      <a class="soc-link" href="mailto:pranjalimain000@gmail.com">Email</a>
+      <a class="soc-link" href="#">Download CV</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Pranjali Main</span>
+  <span>M.Tech Materials Science · IIST</span>
+  <span>Thane, Maharashtra, India</span>
+</footer>
+
+<script>
+// ── LOADER ──
+window.addEventListener('load', () => setTimeout(() => document.getElementById('loader').classList.add('gone'), 2000));
+
+// ── CURSOR ──
+const cur = document.getElementById('cur');
+const curR = document.getElementById('curR');
+let mx = 0, my = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cur.style.left = mx+'px'; cur.style.top = my+'px';
+  setTimeout(() => { curR.style.left = mx+'px'; curR.style.top = my+'px'; }, 90);
+});
+document.querySelectorAll('a,button,.proj-card,.exp-block,.ach-item').forEach(el => {
+  el.addEventListener('mouseenter', () => { cur.classList.add('hov'); curR.classList.add('hov'); });
+  el.addEventListener('mouseleave', () => { cur.classList.remove('hov'); curR.classList.remove('hov'); });
+});
+
+// ── STARS ──
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+let stars = [];
+function resizeStars() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+function initStars() {
+  stars = Array.from({length:180}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.2,
+    o: Math.random(),
+    s: Math.random() * 0.003 + 0.001
+  }));
+}
+function drawStars() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  stars.forEach(s => {
+    s.o += s.s;
+    if(s.o > 1) s.s *= -1;
+    if(s.o < 0) s.s *= -1;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(204,224,255,${s.o * 0.7})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+resizeStars(); initStars(); drawStars();
+window.addEventListener('resize', () => { resizeStars(); initStars(); });
+
+// ── WAVE CANVAS (Sonar project viz) ──
+const wc = document.getElementById('waveCanvas');
+if(wc) {
+  const wctx = wc.getContext('2d');
+  function resizeWC() {
+    const par = wc.parentElement;
+    wc.width = par.clientWidth; wc.height = par.clientHeight;
+  }
+  resizeWC();
+  let wt = 0;
+  function drawWave() {
+    wctx.clearRect(0,0,wc.width,wc.height);
+    wctx.fillStyle = 'rgba(11,17,40,0.95)';
+    wctx.fillRect(0,0,wc.width,wc.height);
+    const cx = wc.width/2, cy = wc.height/2;
+    // Sonar rings
+    for(let i=0;i<5;i++) {
+      const progress = ((wt * 0.4 + i * 60) % 300) / 300;
+      const r = progress * Math.min(cx,cy);
+      const alpha = (1-progress) * 0.4;
+      wctx.beginPath();
+      wctx.arc(cx,cy,r,0,Math.PI*2);
+      wctx.strokeStyle = `rgba(77,184,255,${alpha})`;
+      wctx.lineWidth = 1;
+      wctx.stroke();
+    }
+    // Wave lines
+    for(let y=0;y<wc.height;y+=16) {
+      wctx.beginPath();
+      for(let x=0;x<wc.width;x+=2) {
+        const dist = Math.sqrt((x-cx)**2 + (y-cy)**2);
+        const amp = Math.max(0, 1 - dist / 200) * 4;
+        const wave = Math.sin(dist*0.08 - wt*0.06) * amp;
+        const yy = y + wave;
+        if(x===0) wctx.moveTo(x,yy); else wctx.lineTo(x,yy);
+      }
+      wctx.strokeStyle = `rgba(255,107,43,0.05)`;
+      wctx.lineWidth = 0.8;
+      wctx.stroke();
+    }
+    // Center pulse
+    const pa = Math.sin(wt*0.05)*0.5+0.5;
+    wctx.beginPath();
+    wctx.arc(cx,cy,6,0,Math.PI*2);
+    wctx.fillStyle = `rgba(255,107,43,${0.5+pa*0.5})`;
+    wctx.shadowColor = '#ff6b2b'; wctx.shadowBlur = 20;
+    wctx.fill();
+    wctx.shadowBlur = 0;
+    wt++;
+    requestAnimationFrame(drawWave);
+  }
+  drawWave();
+  window.addEventListener('resize', resizeWC);
+}
+
+// ── SCROLL REVEAL ──
+const rvObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold:0.12 });
+document.querySelectorAll('.rv').forEach(el => rvObs.observe(el));
+
+// ── SKILL BARS ──
+const barObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      e.target.querySelectorAll('.sg-fill').forEach(f => {
+        setTimeout(() => {
+          f.style.transform = `scaleX(${f.dataset.w})`;
+          f.classList.add('live');
+        }, 200);
+      });
+      barObs.unobserve(e.target);
+    }
+  });
+}, { threshold:0.3 });
+document.querySelectorAll('.skill-group').forEach(sg => barObs.observe(sg));
+
+// ── HERO PARALLAX ──
+document.addEventListener('mousemove', e => {
+  const x = (e.clientX/window.innerWidth - 0.5) * 18;
+  const y = (e.clientY/window.innerHeight - 0.5) * 12;
+  const mol = document.querySelector('.hero-molecule');
+  if(mol) mol.style.transform = `translateY(-50%) translate(${x*0.6}px,${y*0.6}px)`;
+  document.querySelectorAll('.atmo').forEach((a,i) => {
+    const f = (i+1)*0.35;
+    a.style.transform = `translate(${x*f}px,${y*f}px)`;
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pranjali Main — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Syne',sans-serif;
+  background:#000;color:#fff;
+  overflow:hidden;height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(255,90,50,0.4)}
+
+/* BG noise */
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:0.025;
+}
+
+.wrapper{
+  position:relative;z-index:1;
+  text-align:center;
+  max-width:800px;
+  padding:0 32px;
+}
+
+/* Top label */
+.label{
+  font-family:'Space Mono',monospace;
+  font-size:0.6rem;
+  letter-spacing:5px;
+  text-transform:uppercase;
+  opacity:0.45;
+  margin-bottom:48px;
+  color:rgba(255,140,90,0.9);
+}
+
+/* Title */
+.title{
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(2.8rem,6vw,5rem);
+  font-weight:400;
+  letter-spacing:-2px;
+  line-height:1;
+  margin-bottom:16px;
+}
+.title em{
+  font-style:italic;
+  opacity:0.6;
+}
+
+/* Sub */
+.sub{
+  font-size:0.88rem;
+  opacity:0.55;
+  font-weight:400;
+  margin-bottom:64px;
+  letter-spacing:0.3px;
+  color:rgba(255,255,255,0.7);
+}
+
+/* Version cards */
+.versions{
+  display:flex;
+  gap:20px;
+  justify-content:center;
+}
+
+.v-card{
+  position:relative;
+  width:220px;
+  padding:48px 28px 40px;
+  border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.03);
+  text-decoration:none;
+  color:#fff;
+  transition:all 0.6s cubic-bezier(0.33,1,0.68,1);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  align-items:center;gap:20px;
+  cursor:pointer;
+}
+.v-card::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,90,50,0.04),transparent 60%);
+  opacity:0;transition:opacity 0.6s;
+}
+.v-card::after{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,90,50,0.5),transparent);
+  transform:scaleX(0);
+  transition:transform 0.6s cubic-bezier(0.33,1,0.68,1);
+}
+.v-card:hover{
+  border-color:rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.04);
+  transform:translateY(-8px);
+}
+.v-card:hover::before{opacity:1}
+.v-card:hover::after{transform:scaleX(1)}
+
+.v-num{
+  font-family:'Instrument Serif',serif;
+  font-size:3.5rem;
+  line-height:1;
+  opacity:0.12;
+  letter-spacing:-3px;
+  -webkit-text-stroke:1px rgba(255,160,100,0.25);
+  color:transparent;
+  transition:opacity 0.5s;
+}
+.v-card:hover .v-num{opacity:0.3}
+
+.v-name{
+  font-family:'Space Mono',monospace;
+  font-size:0.7rem;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  opacity:0.75;
+  color:rgba(255,180,130,0.95);
+  transition:opacity 0.5s, color 0.5s;
+}
+.v-card:hover .v-name{opacity:1;color:#fff}
+
+.v-desc{
+  font-size:0.75rem;
+  opacity:0.45;
+  line-height:1.7;
+  font-weight:400;
+  color:rgba(255,255,255,0.65);
+  transition:opacity 0.5s;
+}
+.v-card:hover .v-desc{opacity:0.75}
+
+.v-arrow{
+  width:32px;height:32px;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:8px;
+  transition:all 0.5s;
+}
+.v-arrow svg{
+  width:14px;height:14px;
+  opacity:0.5;
+  transition:all 0.5s;
+}
+.v-card:hover .v-arrow{
+  border-color:rgba(255,90,50,0.4);
+  background:rgba(255,90,50,0.08);
+}
+.v-card:hover .v-arrow svg{opacity:0.8}
+
+/* Bottom hint */
+.hint{
+  font-family:'Space Mono',monospace;
+  font-size:0.55rem;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  opacity:0.3;
+  margin-top:72px;
+  color:rgba(255,255,255,0.5);
+}
+
+/* ─── PAGE TRANSITION OVERLAY ─── */
+.transition-overlay{
+  position:fixed;inset:0;z-index:1000;
+  background:#000;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:20px;
+  pointer-events:none;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity 0.3s;
+}
+.transition-overlay.active{
+  opacity:1;visibility:visible;
+  pointer-events:all;
+}
+.transition-text{
+  font-family:'Instrument Serif',serif;
+  font-size:1.6rem;
+  font-style:italic;
+  opacity:0;
+  transform:translateY(20px);
+  transition:all 0.6s 0.3s cubic-bezier(0.33,1,0.68,1);
+}
+.transition-overlay.active .transition-text{
+  opacity:0.5;
+  transform:translateY(0);
+}
+.transition-bar{
+  width:120px;height:1px;
+  background:rgba(255,255,255,0.06);
+  position:relative;
+  overflow:hidden;
+  opacity:0;
+  transition:opacity 0.4s 0.5s;
+}
+.transition-overlay.active .transition-bar{opacity:1}
+.transition-bar-fill{
+  position:absolute;top:0;left:0;
+  height:100%;width:0;
+  background:rgba(255,90,50,0.6);
+  transition:width 0.8s 0.6s cubic-bezier(0.33,1,0.68,1);
+}
+.transition-overlay.active .transition-bar-fill{
+  width:100%;
+}
+
+/* ─── ENTRANCE ANIMATIONS ─── */
+.wrapper > *{
+  opacity:0;
+  transform:translateY(30px);
+}
+
+/* Responsive */
+@media(max-width:640px){
+  .versions{flex-direction:column;align-items:center;gap:16px}
+  .v-card{width:100%;max-width:280px;padding:36px 24px 32px}
+  .v-num{font-size:2.5rem}
+  .hint{margin-top:48px}
+}
+</style>
+</head>
+<body>
+
+<!-- TRANSITION OVERLAY -->
+<div class="transition-overlay" id="transitionOverlay">
+  <div class="transition-text" id="transitionText">Loading</div>
+  <div class="transition-bar"><div class="transition-bar-fill"></div></div>
+</div>
+
+<div class="wrapper" id="wrapper">
+  <div class="label">Portfolio Preview</div>
+
+  <h1 class="title">Pranjali <em>Main</em></h1>
+  <p class="sub">Choose a design version to preview</p>
+
+  <div class="versions">
+    <a class="v-card" data-href="v0.html" data-label="Design I">
+      <div class="v-num">01</div>
+      <div class="v-name">Design I</div>
+      <div class="v-desc">Space-themed with plasma accents & orbital animations</div>
+      <div class="v-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M7 17L17 7M17 7H7M17 7V17"/>
+        </svg>
+      </div>
+    </a>
+
+    <a class="v-card" data-href="v1.html" data-label="Design II">
+      <div class="v-num">02</div>
+      <div class="v-name">Design II</div>
+      <div class="v-desc">Polished aesthetic with smooth scroll & glass effects</div>
+      <div class="v-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M7 17L17 7M17 7H7M17 7V17"/>
+        </svg>
+      </div>
+    </a>
+
+    <a class="v-card" data-href="v2.html" data-label="Design III">
+      <div class="v-num">03</div>
+      <div class="v-name">Design III</div>
+      <div class="v-desc">3D WebGL with shader effects & editorial typography</div>
+      <div class="v-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M7 17L17 7M17 7H7M17 7V17"/>
+        </svg>
+      </div>
+    </a>
+  </div>
+
+  <div class="hint">Select a design to preview</div>
+</div>
+
+<script>
+(() => {
+  // Entrance animation
+  const items = document.querySelectorAll('#wrapper > *');
+  items.forEach((el, i) => {
+    setTimeout(() => {
+      el.style.transition = `opacity 0.7s ${i * 0.1}s cubic-bezier(0.33,1,0.68,1), transform 0.7s ${i * 0.1}s cubic-bezier(0.33,1,0.68,1)`;
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+    }, 100);
+  });
+
+  // Card click → transition → redirect
+  const overlay = document.getElementById('transitionOverlay');
+  const transitionText = document.getElementById('transitionText');
+
+  document.querySelectorAll('.v-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const href = card.dataset.href;
+      const label = card.dataset.label;
+
+      transitionText.textContent = label;
+      overlay.classList.add('active');
+
+      setTimeout(() => {
+        window.location.href = href;
+      }, 1500);
+    });
+  });
+})();
+</script>
+</body>
+</html>

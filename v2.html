@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pranjali Main — Materials Science & Aerospace</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f5f2ec; --bg2:#edeae2; --bg3:#e4e0d6; --surface:#ffffff;
+  --border:rgba(60,40,10,0.12); --border2:rgba(200,74,18,0.2);
+  --text:#1a1208; --text2:#3d3020; --muted:#7a6a50; --faint:rgba(26,18,8,0.55);
+  --fire:#c84a12; --fire2:#e07a20; --fire3:#f5a830;
+  --chem:#1a7a4a; --chem2:#2aaa6a;
+  --sky:#1450a0; --sky2:#2a7adc;
+  --shadow:rgba(60,30,0,0.1);
+}
+[data-theme="dark"] {
+  --bg:#07090e; --bg2:#0c0f18; --bg3:#111520; --surface:#141926;
+  --border:rgba(77,184,255,0.09); --border2:rgba(255,107,43,0.16);
+  --text:#dde8ff; --text2:#a0b8d8; --muted:#4d6480; --faint:rgba(204,224,255,0.48);
+  --fire:#ff6b2b; --fire2:#ffaa44; --fire3:#ffd080;
+  --chem:#2affaa; --chem2:#80ffcc;
+  --sky:#4db8ff; --sky2:#a0d8ff;
+  --shadow:rgba(0,0,0,0.4);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'IBM Plex Mono',monospace;background:var(--bg);color:var(--text);cursor:none;overflow-x:hidden;transition:background 0.5s,color 0.5s;}
+body::before{content:'';position:fixed;inset:0;z-index:9000;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:0.03;}
+
+/* Cursor */
+.cur{position:fixed;z-index:9999;pointer-events:none;width:9px;height:9px;background:var(--fire);border-radius:50%;transform:translate(-50%,-50%);transition:width .2s,height .2s;}
+.curR{position:fixed;z-index:9998;pointer-events:none;width:34px;height:34px;border:1.5px solid var(--sky);border-radius:50%;transform:translate(-50%,-50%);transition:left .12s ease-out,top .12s ease-out,width .28s,height .28s,border-color .28s;}
+.cur.hov{width:5px;height:5px;}
+.curR.hov{width:52px;height:52px;border-color:var(--fire);}
+
+/* Loader */
+#loader{position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .7s .5s,visibility .7s .5s;}
+#loader.gone{opacity:0;visibility:hidden;}
+.ld-spin{width:56px;height:56px;}
+.ld-spin svg{width:100%;height:100%;animation:ldSpin 2s linear infinite;}
+@keyframes ldSpin{to{transform:rotate(360deg);}}
+.ld-name{font-family:'Syne';font-weight:800;font-size:1.1rem;letter-spacing:.28em;color:var(--text);text-transform:uppercase;}
+.ld-sub{font-size:.58rem;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;}
+.ld-bar{width:180px;height:1.5px;background:var(--border);}
+.ld-fill{height:100%;background:linear-gradient(90deg,var(--fire),var(--fire3));animation:ldF 1.8s cubic-bezier(.77,0,.18,1) forwards;}
+@keyframes ldF{from{width:0;}to{width:100%;}}
+
+/* Theme btn */
+.theme-btn{position:fixed;bottom:28px;right:28px;z-index:10001;height:40px;padding:0 16px 0 12px;border-radius:999px;background:var(--surface);border:1.5px solid var(--border);display:flex;align-items:center;gap:8px;cursor:pointer;box-shadow:0 4px 20px var(--shadow);transition:transform .25s,border-color .3s,background .5s,box-shadow .3s;}
+.theme-btn:hover{transform:translateY(-2px);border-color:var(--fire);box-shadow:0 6px 28px var(--shadow);}
+.theme-btn .tb-icon{font-size:1rem;line-height:1;transition:transform .3s;}
+.theme-btn .tb-label{font-family:'IBM Plex Mono',monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap;transition:color .3s;}
+.theme-btn:hover .tb-label{color:var(--fire);}
+
+/* Nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 52px;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(18px);border-bottom:1px solid var(--border);transition:background .5s,border-color .5s;}
+[data-theme="light"] nav{background:rgba(245,242,236,0.88);}
+[data-theme="dark"] nav{background:rgba(7,9,14,0.82);}
+.nav-wm{font-family:'Syne';font-weight:800;font-size:.95rem;letter-spacing:.07em;color:var(--text);text-transform:uppercase;}
+.nav-wm span{color:var(--fire);}
+.nav-links{display:flex;gap:30px;}
+.nav-links a{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .25s;position:relative;}
+.nav-links a::after{content:'';position:absolute;left:0;bottom:-3px;width:0;height:1.5px;background:var(--fire);transition:width .25s;}
+.nav-links a:hover{color:var(--text);}
+.nav-links a:hover::after{width:100%;}
+.nav-status{display:flex;align-items:center;gap:7px;font-size:.6rem;letter-spacing:.12em;color:var(--muted);}
+.ndot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e;animation:ndPulse 2s infinite;}
+@keyframes ndPulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* Hero */
+#hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 52px 80px;overflow:hidden;}
+.hero-grid{position:absolute;inset:0;z-index:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse 90% 90% at 50% 50%,black 40%,transparent 100%);}
+#heroCanvas{position:absolute;right:0;top:0;width:55%;height:100%;pointer-events:none;z-index:1;}
+#chemHeroCanvas{position:absolute;left:52px;top:110px;width:200px;height:200px;pointer-events:none;z-index:1;opacity:.65;}
+.hero-content{position:relative;z-index:10;max-width:680px;}
+.h-ey{font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--fire);margin-bottom:18px;display:flex;align-items:center;gap:12px;opacity:0;animation:fuA .8s .6s forwards;}
+.h-ey::before{content:'';width:26px;height:1.5px;background:var(--fire);display:block;}
+.h-name{font-family:'Playfair Display';font-weight:900;font-size:clamp(4rem,9vw,7.5rem);line-height:.92;color:var(--text);opacity:0;animation:fuA .9s .8s forwards;}
+.h-name .r2{display:block;color:transparent;-webkit-text-stroke:1.5px var(--fire);font-size:.82em;font-style:italic;}
+.h-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px;opacity:0;animation:fuA .8s 1s forwards;}
+.h-chip{padding:5px 13px;border:1px solid var(--border2);font-size:.58rem;letter-spacing:.13em;text-transform:uppercase;color:var(--fire);background:rgba(200,74,18,0.05);clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.h-sub{margin-top:26px;font-family:'Playfair Display';font-style:italic;font-size:1.02rem;line-height:1.75;color:var(--faint);max-width:510px;opacity:0;animation:fuA .8s 1.15s forwards;}
+.h-sub strong{color:var(--text);font-style:normal;}
+.h-ctas{display:flex;gap:12px;margin-top:38px;opacity:0;animation:fuA .8s 1.3s forwards;}
+.btn-p{padding:12px 28px;background:var(--fire);color:#fff;font-family:'IBM Plex Mono';font-size:.68rem;font-weight:500;letter-spacing:.11em;text-transform:uppercase;border:none;cursor:none;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));transition:filter .25s,transform .2s;}
+.btn-p:hover{filter:brightness(1.15);transform:translateY(-2px);}
+.btn-o{padding:12px 28px;background:transparent;color:var(--text);font-family:'IBM Plex Mono';font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;border:1.5px solid var(--border);cursor:none;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));transition:border-color .3s,color .3s;}
+.btn-o:hover{border-color:var(--sky);color:var(--sky);}
+.h-scroll{position:absolute;bottom:28px;right:52px;writing-mode:vertical-rl;display:flex;align-items:center;gap:10px;font-size:.57rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);opacity:0;animation:fuA 1s 1.8s forwards;}
+.h-scroll-ln{width:1px;height:46px;background:linear-gradient(var(--muted),transparent);animation:sPulse 1.6s ease-in-out infinite;}
+@keyframes sPulse{0%,100%{opacity:1;}50%{opacity:.2;}}
+@keyframes fuA{from{opacity:0;transform:translateY(26px);}to{opacity:1;transform:translateY(0);}}
+
+/* Ticker */
+.ticker{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg2);overflow:hidden;padding:11px 0;}
+.ticker-track{display:flex;white-space:nowrap;animation:tScroll 30s linear infinite;}
+@keyframes tScroll{to{transform:translateX(-50%);}}
+.tick-item{display:inline-flex;align-items:center;gap:48px;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:0 48px;flex-shrink:0;}
+.tick-sep{color:var(--fire);font-size:.48rem;}
+
+/* Sections */
+section{padding:108px 52px;position:relative;z-index:2;}
+.s-tag{font-size:.6rem;letter-spacing:.26em;text-transform:uppercase;color:var(--fire);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+.s-tag::before{content:'';width:24px;height:1.5px;background:var(--fire);}
+.s-title{font-family:'Playfair Display';font-weight:900;font-size:clamp(2.2rem,4.5vw,3.3rem);line-height:1.05;color:var(--text);margin-bottom:54px;}
+.s-title em{font-style:italic;color:var(--muted);font-weight:400;}
+
+/* About */
+#about{background:var(--surface);}
+.about-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:78px;align-items:start;}
+.lframe{aspect-ratio:1;max-width:400px;background:var(--bg2);border:1px solid var(--border);clip-path:polygon(0 0,calc(100% - 26px) 0,100% 26px,100% 100%,26px 100%,0 calc(100% - 26px));position:relative;overflow:hidden;}
+#latticeCanvas{width:100%;height:100%;display:block;}
+.lframe-scan{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--sky),transparent);opacity:.45;animation:lfS 3.5s ease-in-out infinite;z-index:3;}
+@keyframes lfS{0%{top:0;}100%{top:100%;}}
+.about-stats{position:absolute;bottom:-22px;right:-22px;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);width:210px;}
+.astat{background:var(--surface);padding:14px;text-align:center;}
+.astat-n{font-family:'Syne';font-weight:800;font-size:1.7rem;color:var(--fire);line-height:1;}
+.astat-l{font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:3px;}
+.about-text p{font-size:.87rem;line-height:1.95;color:var(--faint);margin-bottom:17px;}
+.about-text p strong{color:var(--text);font-weight:600;}
+.about-text p em{color:var(--fire2);font-style:italic;}
+.itags{display:flex;flex-wrap:wrap;gap:7px;margin-top:26px;}
+.itag{padding:5px 12px;border:1px solid var(--border);font-size:.57rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);transition:border-color .25s,color .25s,background .25s;}
+.itag:hover{border-color:var(--fire);color:var(--fire);background:rgba(200,74,18,0.04);}
+
+/* Education */
+#education{background:var(--bg);}
+.edu-list{display:flex;flex-direction:column;gap:1px;background:var(--border);}
+.edu-row{background:var(--bg);padding:42px 48px;display:grid;grid-template-columns:175px 1fr auto;gap:38px;align-items:center;position:relative;overflow:hidden;transition:background .3s;}
+.edu-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--fire),var(--fire3));transform:scaleY(0);transform-origin:top;transition:transform .4s cubic-bezier(.16,1,.3,1);}
+.edu-row:hover{background:rgba(200,74,18,0.02);}
+.edu-row:hover::before{transform:scaleY(1);}
+.edu-yr{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--fire);}
+.edu-main h3{font-family:'Syne';font-weight:700;font-size:.98rem;color:var(--text);margin-bottom:5px;}
+.edu-inst{font-family:'Playfair Display';font-style:italic;font-size:.84rem;color:var(--muted);margin-bottom:5px;}
+.edu-loc{font-size:.59rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+.edu-badge{display:inline-block;margin-top:8px;padding:3px 9px;border:1px solid var(--border2);font-size:.53rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fire2);}
+.edu-grade .gn{font-family:'Syne';font-weight:800;font-size:2.3rem;background:linear-gradient(135deg,var(--fire),var(--fire3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.edu-grade .gl{font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:right;}
+
+/* Experience */
+#experience{background:var(--surface);}
+.exp-list{display:flex;flex-direction:column;gap:1px;background:var(--border);}
+.exp-row{background:var(--surface);padding:50px 48px;display:grid;grid-template-columns:210px 1fr;gap:50px;align-items:start;position:relative;overflow:hidden;transition:background .3s;}
+.exp-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--fire),var(--fire3));transform:scaleY(0);transform-origin:top;transition:transform .4s cubic-bezier(.16,1,.3,1);}
+.exp-row:hover{background:rgba(200,74,18,0.015);}
+.exp-row:hover::before{transform:scaleY(1);}
+.ep{font-size:.6rem;letter-spacing:.13em;text-transform:uppercase;color:var(--fire);margin-bottom:6px;}
+.eo{font-family:'Syne';font-weight:700;font-size:.98rem;color:var(--text);letter-spacing:.04em;margin-bottom:3px;}
+.es{font-size:.59rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.exp-r h3{font-family:'Playfair Display';font-size:1.25rem;color:var(--text);margin-bottom:13px;font-weight:400;}
+.exp-r h3 em{color:var(--fire2);}
+.exp-r ul{list-style:none;}
+.exp-r ul li{font-size:.79rem;line-height:1.88;color:var(--faint);padding-left:17px;position:relative;margin-bottom:7px;}
+.exp-r ul li::before{content:'▸';position:absolute;left:0;color:var(--fire);font-size:.65rem;top:.15em;}
+.etags{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;}
+.etag{padding:3px 9px;border:1px solid rgba(20,80,160,0.2);font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;color:var(--sky);}
+[data-theme="dark"] .etag{border-color:rgba(77,184,255,0.16);}
+
+/* Skills */
+#skills{background:var(--bg2);}
+.skills-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);}
+.sk-card{background:var(--bg2);padding:38px 34px;position:relative;overflow:hidden;transition:background .3s;}
+.sk-card:hover{background:rgba(200,74,18,0.03);}
+.sk-icon{font-size:1.5rem;margin-bottom:14px;display:block;}
+.sk-head{font-family:'Syne';font-weight:700;font-size:.88rem;letter-spacing:.05em;text-transform:uppercase;color:var(--text);margin-bottom:18px;}
+.sk-pills{display:flex;flex-wrap:wrap;gap:6px;}
+.sk-pill{padding:5px 11px;font-size:.59rem;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border);color:var(--text2);clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);transition:border-color .25s,color .25s,background .25s;}
+.sk-pill:hover{border-color:var(--fire);color:var(--fire);background:rgba(200,74,18,0.04);}
+.sk-lang{border-color:var(--border2);color:var(--fire2);}
+[data-theme="dark"] .sk-lang{border-color:rgba(255,107,43,0.2);}
+
+/* Simulations */
+#simulations{background:var(--surface);}
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);}
+.sim-card{background:var(--surface);position:relative;overflow:hidden;aspect-ratio:4/3;}
+.sim-card canvas{width:100%;height:100%;display:block;}
+.sim-ov{position:absolute;bottom:0;left:0;right:0;padding:22px 26px;}
+[data-theme="light"] .sim-ov{background:linear-gradient(transparent,rgba(255,255,255,0.94));}
+[data-theme="dark"] .sim-ov{background:linear-gradient(transparent,rgba(7,9,14,0.94));}
+.sim-title{font-family:'Syne';font-weight:700;font-size:.82rem;letter-spacing:.05em;text-transform:uppercase;color:var(--text);margin-bottom:4px;}
+.sim-desc{font-size:.62rem;line-height:1.6;color:var(--muted);}
+.sim-badge{display:inline-block;margin-top:7px;padding:3px 9px;font-size:.51rem;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--border2);color:var(--fire);}
+
+/* Projects */
+#projects{background:var(--bg);}
+.proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);}
+.pcard{background:var(--bg);padding:42px;position:relative;overflow:hidden;cursor:none;transition:background .3s;}
+.pcard:hover{background:rgba(200,74,18,0.025);}
+.pnum{font-family:'Syne';font-weight:800;font-size:4rem;color:rgba(0,0,0,0.04);line-height:1;margin-bottom:-8px;}
+[data-theme="dark"] .pnum{color:rgba(255,255,255,0.03);}
+.ptitle{font-family:'Playfair Display';font-size:1.18rem;color:var(--text);margin-bottom:11px;transition:color .25s;line-height:1.3;}
+.pcard:hover .ptitle{color:var(--fire);}
+.pdesc{font-size:.77rem;line-height:1.88;color:var(--faint);margin-bottom:17px;}
+.plink{display:inline-flex;align-items:center;gap:8px;font-size:.61rem;letter-spacing:.16em;text-transform:uppercase;color:var(--fire);text-decoration:none;transition:gap .25s;}
+.plink:hover{gap:14px;}
+.parr{width:16px;height:1.5px;background:var(--fire);position:relative;transition:width .25s;}
+.plink:hover .parr{width:26px;}
+.parr::after{content:'';position:absolute;right:0;top:50%;width:5px;height:5px;border-right:1.5px solid var(--fire);border-top:1.5px solid var(--fire);transform:translate(0,-50%) rotate(45deg);}
+.pcard.wide{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:center;}
+
+/* Achievements */
+#achievements{background:var(--bg2);}
+.ach-list{display:flex;flex-direction:column;gap:1px;background:var(--border);}
+.ach-row{background:var(--bg2);padding:26px 42px;display:flex;align-items:center;gap:32px;transition:background .3s;position:relative;overflow:hidden;}
+.ach-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2.5px;background:var(--fire3);transform:scaleY(0);transform-origin:center;transition:transform .35s;}
+.ach-row:hover{background:rgba(245,168,48,0.04);}
+.ach-row:hover::before{transform:scaleY(1);}
+.ach-star{width:34px;height:34px;flex-shrink:0;background:rgba(200,74,18,0.08);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.95rem;color:var(--fire);}
+.ach-name{font-family:'Syne';font-weight:600;font-size:.93rem;color:var(--text);margin-bottom:3px;}
+.ach-date{font-size:.59rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+
+/* Contact */
+#contact{background:var(--surface);text-align:center;position:relative;overflow:hidden;}
+.contact-bg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Syne';font-weight:800;font-size:18vw;white-space:nowrap;pointer-events:none;letter-spacing:.05em;}
+[data-theme="light"] .contact-bg{color:rgba(0,0,0,0.025);}
+[data-theme="dark"] .contact-bg{color:rgba(255,255,255,0.015);}
+.contact-in{position:relative;z-index:2;}
+.c-email{font-family:'Playfair Display';font-style:italic;font-size:clamp(1.8rem,4vw,3.3rem);color:var(--text);text-decoration:none;display:inline-block;margin:26px 0 14px;position:relative;transition:color .3s;}
+.c-email::after{content:'';position:absolute;left:0;bottom:-4px;right:0;height:2px;background:linear-gradient(90deg,var(--fire),var(--fire3));transform:scaleX(0);transition:transform .4s;}
+.c-email:hover{color:var(--fire);}
+.c-email:hover::after{transform:scaleX(1);}
+.c-phone{font-size:.78rem;letter-spacing:.14em;color:var(--muted);display:block;margin-bottom:40px;}
+.soc-row{display:flex;justify-content:center;gap:12px;margin-bottom:68px;flex-wrap:wrap;}
+.soc-btn{padding:12px 26px;border:1.5px solid var(--border);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text2);text-decoration:none;background:transparent;clip-path:polygon(6px 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%,0 6px);transition:border-color .3s,color .3s,background .3s;cursor:none;}
+.soc-btn:hover{border-color:var(--fire);color:var(--fire);background:rgba(200,74,18,0.05);}
+
+/* Footer */
+footer{padding:20px 52px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:.57rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:var(--bg);}
+
+/* Reveal */
+.rv{opacity:0;transform:translateY(30px);transition:opacity .8s,transform .8s;}
+.rv.in{opacity:1;transform:translateY(0);}
+.rv.d1{transition-delay:.1s;}.rv.d2{transition-delay:.2s;}.rv.d3{transition-delay:.3s;}
+
+@media(max-width:900px){
+  .about-grid,.sim-grid,.proj-grid,.pcard.wide{grid-template-columns:1fr;}
+  .skills-grid{grid-template-columns:1fr 1fr;}
+  .nav-links{display:none;}
+  .edu-row{grid-template-columns:1fr;gap:14px;}
+  .exp-row{grid-template-columns:1fr;gap:20px;}
+}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="ld-spin"><svg viewBox="0 0 56 56" fill="none"><circle cx="28" cy="28" r="24" stroke="rgba(200,74,18,0.15)" stroke-width="1"/><path d="M28 4 A24 24 0 0 1 52 28" stroke="#c84a12" stroke-width="1.5" stroke-linecap="round"/><circle cx="28" cy="4" r="2.5" fill="#c84a12"/></svg></div>
+  <div class="ld-name">Pranjali Main</div>
+  <div class="ld-sub">Materials Science · Aerospace Engineering</div>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
+</div>
+
+<div class="cur" id="cur"></div>
+<div class="curR" id="curR"></div>
+<button class="theme-btn" id="themeBtn"><span class="tb-icon">🌙</span><span class="tb-label">Dark Mode</span></button>
+
+<nav>
+  <div class="nav-wm">Pranjali<span>.</span>Main</div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#education">Education</a>
+    <a href="#experience">Experience</a>
+    <a href="#simulations">Simulations</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <div class="nav-status"><div class="ndot"></div>Open to Opportunities</div>
+</nav>
+
+<section id="hero">
+  <div class="hero-grid"></div>
+  <canvas id="heroCanvas"></canvas>
+  <canvas id="chemHeroCanvas"></canvas>
+  <div class="hero-content">
+    <div class="h-ey">Materials Science · Aerospace Engineering · IIST</div>
+    <h1 class="h-name">PRANJALI<span class="r2">MAIN</span></h1>
+    <div class="h-chips">
+      <span class="h-chip">FEA / CFD</span>
+      <span class="h-chip">Composites</span>
+      <span class="h-chip">Propulsion</span>
+      <span class="h-chip">Simulation</span>
+      <span class="h-chip">Fine Arts Minor</span>
+      <span class="h-chip">NASA Hackathon</span>
+    </div>
+    <p class="h-sub">Engineer at the frontier of <strong>materials science</strong> and <strong>aerospace</strong> — using FEA, CFD, chemical simulation, and a fine-arts sensibility to push the limits of propulsion and structural design.</p>
+    <div class="h-ctas">
+      <button class="btn-p" onclick="document.getElementById('experience').scrollIntoView({behavior:'smooth'})">View Experience</button>
+      <button class="btn-o" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Get In Touch</button>
+    </div>
+  </div>
+  <div class="h-scroll"><div class="h-scroll-ln"></div>Scroll</div>
+</section>
+
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="tick-item">IIST Thiruvananthapuram<span class="tick-sep">◆</span></span>
+    <span class="tick-item">Amity University Mumbai<span class="tick-sep">◆</span></span>
+    <span class="tick-item">M.Tech CGPA 9.0<span class="tick-sep">◆</span></span>
+    <span class="tick-item">Godrej Aerospace<span class="tick-sep">◆</span></span>
+    <span class="tick-item">Feynman Aerospace<span class="tick-sep">◆</span></span>
+    <span class="tick-item">NASA Space Hackathon<span class="tick-sep">◆</span></span>
+    <span class="tick-item">FOSSEE Scilab 2nd Prize<span class="tick-sep">◆</span></span>
+    <span class="tick-item">Rocket Propulsion · CFD · FEA<span class="tick-sep">◆</span></span>
+    <span class="tick-item">IIST Thiruvananthapuram<span class="tick-sep">◆</span></span>
+    <span class="tick-item">Amity University Mumbai<span class="tick-sep">◆</span></span>
+    <span class="tick-item">M.Tech CGPA 9.0<span class="tick-sep">◆</span></span>
+    <span class="tick-item">Godrej Aerospace<span class="tick-sep">◆</span></span>
+    <span class="tick-item">Feynman Aerospace<span class="tick-sep">◆</span></span>
+    <span class="tick-item">NASA Space Hackathon<span class="tick-sep">◆</span></span>
+    <span class="tick-item">FOSSEE Scilab 2nd Prize<span class="tick-sep">◆</span></span>
+    <span class="tick-item">Rocket Propulsion · CFD · FEA<span class="tick-sep">◆</span></span>
+  </div>
+</div>
+
+<section id="about">
+  <div class="about-grid">
+    <div class="rv" style="position:relative;">
+      <div class="lframe"><canvas id="latticeCanvas"></canvas><div class="lframe-scan"></div></div>
+      <div class="about-stats">
+        <div class="astat"><div class="astat-n">9.0</div><div class="astat-l">M.Tech CGPA</div></div>
+        <div class="astat"><div class="astat-n">8.04</div><div class="astat-l">B.Tech CGPA</div></div>
+        <div class="astat"><div class="astat-n">2+</div><div class="astat-l">Internships</div></div>
+        <div class="astat"><div class="astat-n">5+</div><div class="astat-l">Certifications</div></div>
+      </div>
+    </div>
+    <div class="rv d2">
+      <div class="s-tag">01 // About</div>
+      <h2 class="s-title">At the boundary of<br>science &amp; <em>craft</em></h2>
+      <div class="about-text">
+        <p>I'm a <strong>materials scientist and aerospace engineer</strong> currently pursuing my M.Tech at IIST, Thiruvananthapuram — one of India's premier space-technology institutions affiliated with ISRO.</p>
+        <p>My B.Tech in Aerospace Engineering at Amity Mumbai came with a <strong>Minor in Fine Arts</strong> — a combination that gives me both the rigour of simulation and the spatial intuition of a visual thinker.</p>
+        <p>From optimising testing workflows at <em>Godrej Aerospace</em> to modelling acoustic noise signatures and navigating autonomous drones in GPS-denied Martian terrain — I bring analytical depth and restless curiosity to every challenge.</p>
+      </div>
+      <div class="itags">
+        <span class="itag">Materials</span><span class="itag">R&amp;D</span><span class="itag">Structural Analysis</span>
+        <span class="itag">Composites</span><span class="itag">Polymers</span><span class="itag">Propulsion Systems</span>
+        <span class="itag">Rocket Propellants</span><span class="itag">Modelling &amp; Simulation</span><span class="itag">CFD</span>
+        <span class="itag">Fine Arts</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="education">
+  <div class="s-tag rv">02 // Education</div>
+  <h2 class="s-title rv">Academic <em>trajectory</em></h2>
+  <div class="edu-list">
+    <div class="edu-row rv">
+      <div class="edu-yr">2025 — 2027</div>
+      <div class="edu-main">
+        <h3>M.Tech — Materials Science &amp; Technology</h3>
+        <div class="edu-inst">Indian Institute of Space Science &amp; Technology (IIST)</div>
+        <div class="edu-loc">Dept. of Chemistry · Thiruvananthapuram, Kerala</div>
+        <span class="edu-badge">ISRO Affiliated · Space-Tech Institution</span>
+      </div>
+      <div class="edu-grade"><div class="gn">9.0</div><div class="gl">CGPA</div></div>
+    </div>
+    <div class="edu-row rv d1">
+      <div class="edu-yr">2021 — 2025</div>
+      <div class="edu-main">
+        <h3>B.Tech — Aerospace Engineering</h3>
+        <div class="edu-inst">Amity University Mumbai</div>
+        <div class="edu-loc">Mumbai, Maharashtra</div>
+        <span class="edu-badge">+ Minor in Fine Arts</span>
+      </div>
+      <div class="edu-grade"><div class="gn">8.04</div><div class="gl">CGPA</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="s-tag rv">03 // Experience</div>
+  <h2 class="s-title rv">Where theory<br><em>becomes practice</em></h2>
+  <div class="exp-list">
+    <div class="exp-row rv">
+      <div>
+        <div class="ep">Jul 2024 – Nov 2024</div>
+        <div class="eo">Feynman Aerospace</div>
+        <div class="es">Internship</div>
+      </div>
+      <div class="exp-r">
+        <h3><em>FEA / CFD Trainee</em> &amp; Intern</h3>
+        <ul>
+          <li>Applied FEA and CFD for structural, thermal, and aerodynamic analysis across aerospace components.</li>
+          <li>Developed high-fidelity simulation models with optimised meshing and boundary conditions.</li>
+          <li>Analysed stress distributions, heat transfer pathways, and airflow characteristics for performance evaluation.</li>
+          <li>Produced detailed technical reports translating simulation outputs into actionable engineering insights.</li>
+        </ul>
+        <div class="etags"><span class="etag">FEA</span><span class="etag">CFD</span><span class="etag">Ansys Workbench</span><span class="etag">Thermal Analysis</span><span class="etag">Meshing</span><span class="etag">Aerodynamics</span></div>
+      </div>
+    </div>
+    <div class="exp-row rv d1">
+      <div>
+        <div class="ep">Jul 2023 – Aug 2023</div>
+        <div class="eo">Godrej Aerospace</div>
+        <div class="es">Vikhroli · Materials Lab</div>
+      </div>
+      <div class="exp-r">
+        <h3><em>Materials Lab</em> Intern</h3>
+        <ul>
+          <li>Project: <em>Laboratory Testing Output Improvement</em> — identified bottlenecks and optimised testing throughput.</li>
+          <li>Designed automation strategies reducing manual errors and enhancing data integrity across testing workflows.</li>
+          <li>Conducted rigorous QC protocols: equipment calibration and inter-laboratory proficiency testing.</li>
+        </ul>
+        <div class="etags"><span class="etag">Materials Testing</span><span class="etag">QC/QA</span><span class="etag">Process Optimisation</span><span class="etag">Calibration</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="s-tag rv">04 // Capabilities</div>
+  <h2 class="s-title rv">Technical <em>arsenal</em></h2>
+  <div class="skills-grid">
+    <div class="sk-card rv"><span class="sk-icon">⚙️</span><div class="sk-head">Engineering Software</div><div class="sk-pills"><span class="sk-pill">Ansys Workbench</span><span class="sk-pill">SolidWorks</span><span class="sk-pill">AutoCAD</span><span class="sk-pill">Fusion 360</span><span class="sk-pill">OpenVSP</span><span class="sk-pill">MATLAB</span><span class="sk-pill">Simulink</span><span class="sk-pill">MS Office</span></div></div>
+    <div class="sk-card rv d1"><span class="sk-icon">🚀</span><div class="sk-head">Aerospace &amp; Propulsion</div><div class="sk-pills"><span class="sk-pill">FEA — Structural</span><span class="sk-pill">CFD</span><span class="sk-pill">Aerodynamics</span><span class="sk-pill">Thermal Analysis</span><span class="sk-pill">Rocket Propellants</span><span class="sk-pill">Propulsion Systems</span><span class="sk-pill">Aircraft Stability</span><span class="sk-pill">Flight Performance</span></div></div>
+    <div class="sk-card rv d2"><span class="sk-icon">🧪</span><div class="sk-head">Materials &amp; Chemistry</div><div class="sk-pills"><span class="sk-pill">Composites</span><span class="sk-pill">Polymers</span><span class="sk-pill">Materials Characterisation</span><span class="sk-pill">Lab Testing</span><span class="sk-pill">QC/QA</span><span class="sk-pill">Process Optimisation</span></div></div>
+    <div class="sk-card rv"><span class="sk-icon">🎨</span><div class="sk-head">Soft Skills</div><div class="sk-pills"><span class="sk-pill">Adaptability</span><span class="sk-pill">Collaboration</span><span class="sk-pill">Problem Solving</span><span class="sk-pill">Technical Reporting</span><span class="sk-pill">Research Methodology</span><span class="sk-pill">Creative Thinking</span></div></div>
+    <div class="sk-card rv d1" style="grid-column:span 2"><span class="sk-icon">🌐</span><div class="sk-head">Languages</div><div class="sk-pills"><span class="sk-pill sk-lang">English</span><span class="sk-pill sk-lang">Hindi</span><span class="sk-pill sk-lang">Marathi</span><span class="sk-pill sk-lang">French</span></div></div>
+  </div>
+</section>
+
+<section id="simulations">
+  <div class="s-tag rv">05 // Live Simulations</div>
+  <h2 class="s-title rv">Where science<br><em>actually meets imagination</em></h2>
+  <div class="sim-grid">
+    <div class="sim-card rv"><canvas id="rocketSim"></canvas><div class="sim-ov"><div class="sim-title">Rocket Plume CFD — Shock Diamonds</div><div class="sim-desc">Supersonic exhaust flow showing Mach discs, oblique shocks &amp; expansion fans in an over-expanded nozzle.</div><span class="sim-badge">CFD · Compressible Flow</span></div></div>
+    <div class="sim-card rv d1"><canvas id="chemSim"></canvas><div class="sim-ov"><div class="sim-title">Molecular Dynamics — Polymer Chain</div><div class="sim-desc">Live polymer chain dynamics modelling bond vibration, thermal agitation &amp; structural relaxation in composite matrices.</div><span class="sim-badge">Materials Science · Molecular Dynamics</span></div></div>
+    <div class="sim-card rv"><canvas id="feaSim"></canvas><div class="sim-ov"><div class="sim-title">FEA — Von Mises Stress Distribution</div><div class="sim-desc">Stress propagation through an aerospace structural member under axial and bending loads with concentration at geometric features.</div><span class="sim-badge">FEA · Structural Analysis</span></div></div>
+    <div class="sim-card rv d1"><canvas id="flightSim"></canvas><div class="sim-ov"><div class="sim-title">Flight Trajectory — Ballistic Arc</div><div class="sim-desc">Two-stage launch vehicle with gravity turn, atmospheric drag, stage separation and trajectory optimisation.</div><span class="sim-badge">Trajectory · Propulsion · Astrodynamics</span></div></div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="s-tag rv">06 // Projects</div>
+  <h2 class="s-title rv">Research &amp;<br><em>engineering work</em></h2>
+  <div class="proj-grid">
+    <div class="pcard wide rv">
+      <div>
+        <div class="pnum">01</div>
+        <h3 class="ptitle">Modelling of Acoustic Noise due to Sonar Signal</h3>
+        <p class="pdesc">B.Tech final project (2025). Developed computational models simulating acoustic propagation from sonar signals — analysing waveform behaviour, noise signatures, and environmental interactions through custom MATLAB simulation pipelines.</p>
+        <div class="etags" style="margin-bottom:16px"><span class="etag">MATLAB</span><span class="etag">Acoustics</span><span class="etag">Wave Modelling</span><span class="etag">Signal Processing</span></div>
+        <a class="plink" href="#">Explore Project <span class="parr"></span></a>
+      </div>
+      <div style="position:relative;aspect-ratio:4/3;overflow:hidden;border:1px solid var(--border)">
+        <canvas id="sonarViz" style="width:100%;height:100%;display:block"></canvas>
+      </div>
+    </div>
+    <div class="pcard rv">
+      <div class="pnum">02</div>
+      <h3 class="ptitle">Autonomous Drone Navigation in GPS-Denied Martian Terrain</h3>
+      <p class="pdesc">IROC-U Competition (2024). Navigation algorithms for UAVs in GPS-denied extraterrestrial environments, accounting for Martian atmospheric density, terrain variability, and dust conditions. Reached NASA Space Hackathon Global Qualifier.</p>
+      <div class="etags" style="margin-bottom:16px"><span class="etag">Autonomous Nav</span><span class="etag">Mars Sim</span><span class="etag">UAV</span><span class="etag">SLAM</span></div>
+      <a class="plink" href="#">Explore Project <span class="parr"></span></a>
+    </div>
+    <div class="pcard rv d1">
+      <div class="pnum">03</div>
+      <h3 class="ptitle">NPTEL Advanced Certification Trilogy</h3>
+      <p class="pdesc">Three advanced NPTEL certifications with distinction — bridging rocket propellant chemistry, flight dynamics, and aircraft performance into a cohesive theoretical foundation for applied aerospace research.</p>
+      <div class="etags" style="margin-bottom:16px"><span class="etag">Rocket Propulsion</span><span class="etag">Flight Dynamics</span><span class="etag">Aircraft Performance</span></div>
+      <a class="plink" href="#">View Certifications <span class="parr"></span></a>
+    </div>
+  </div>
+</section>
+
+<section id="achievements" style="background:var(--bg2)">
+  <div class="s-tag rv">07 // Recognition</div>
+  <h2 class="s-title rv">Milestones &amp; <em>awards</em></h2>
+  <div class="ach-list">
+    <div class="ach-row rv"><div class="ach-star">★</div><div><div class="ach-name">FOSSEE Scilab Hackathon — Second Prize</div><div class="ach-date">April 2025</div></div></div>
+    <div class="ach-row rv d1"><div class="ach-star">★</div><div><div class="ach-name">NASA Space Hackathon — Global Qualifier (IROC-U Project)</div><div class="ach-date">October 2024</div></div></div>
+    <div class="ach-row rv d2"><div class="ach-star">★</div><div><div class="ach-name">NPTEL Certification — Rocket Propulsion (with Distinction)</div><div class="ach-date">Completed</div></div></div>
+    <div class="ach-row rv"><div class="ach-star">★</div><div><div class="ach-name">NPTEL Certification — Aircraft Stability and Control (with Distinction)</div><div class="ach-date">Completed</div></div></div>
+    <div class="ach-row rv d1"><div class="ach-star">★</div><div><div class="ach-name">NPTEL Certification — Aircraft Performance (with Distinction)</div><div class="ach-date">Completed</div></div></div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="contact-bg">CONTACT</div>
+  <div class="contact-in">
+    <div class="s-tag rv" style="justify-content:center">08 // Get In Touch</div>
+    <h2 class="s-title rv" style="text-align:center;margin-bottom:0">Open to research roles,<br><em>collaborations &amp; opportunities</em></h2>
+    <a class="c-email rv" href="mailto:pranjalimain000@gmail.com">pranjalimain000@gmail.com</a>
+    <span class="c-phone rv">+91 93241 34849</span>
+    <div class="soc-row rv">
+      <a class="soc-btn" href="https://linkedin.com/in/pranjali15" target="_blank">LinkedIn →</a>
+      <a class="soc-btn" href="mailto:pranjalimain000@gmail.com">Email →</a>
+      <a class="soc-btn" href="#">Download CV →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Pranjali Main</span>
+  <span>M.Tech Materials Science · IIST Thiruvananthapuram</span>
+  <span>Thane, Maharashtra, India</span>
+</footer>
+
+<script>
+/* ── INIT ── */
+window.addEventListener('load',()=>setTimeout(()=>document.getElementById('loader').classList.add('gone'),2100));
+const themeBtn=document.getElementById('themeBtn');
+const tbIcon=themeBtn.querySelector('.tb-icon');
+const tbLabel=themeBtn.querySelector('.tb-label');
+themeBtn.addEventListener('click',()=>{
+  const d=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',d?'light':'dark');
+  tbIcon.textContent=d?'🌙':'☀️';
+  tbLabel.textContent=d?'Dark Mode':'Light Mode';
+  tbIcon.style.transform='rotate(180deg)';
+  setTimeout(()=>{tbIcon.style.transform='';},300);
+});
+const cur=document.getElementById('cur'),curR=document.getElementById('curR');
+let mx=0,my=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';setTimeout(()=>{curR.style.left=mx+'px';curR.style.top=my+'px';},90);});
+document.querySelectorAll('a,button,.pcard,.exp-row,.ach-row,.sim-card,.edu-row').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.classList.add('hov');curR.classList.add('hov');});el.addEventListener('mouseleave',()=>{cur.classList.remove('hov');curR.classList.remove('hov');});});
+const rvObs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');}),{threshold:.1});
+document.querySelectorAll('.rv').forEach(el=>rvObs.observe(el));
+const dk=()=>document.documentElement.getAttribute('data-theme')==='dark';
+
+/* ── HERO ROCKET ── */
+(function(){
+  const c=document.getElementById('heroCanvas'),ctx=c.getContext('2d');
+  let W,H,t=0,pts=[];
+  function resize(){W=c.width=c.offsetWidth;H=c.height=c.offsetHeight;}
+  resize();window.addEventListener('resize',resize);
+  function sp(){return{x:W*.5+72,y:H*.68+Math.random()*8-4,vx:-(Math.random()*3+1.5),vy:(Math.random()-.5)*1,life:1,decay:.007+Math.random()*.005,size:Math.random()*7+2,hot:Math.random()};}
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<5;i++)pts.push(sp());
+    pts=pts.filter(p=>p.life>0);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.life-=p.decay;p.size*=.99;
+      const a=p.life*.55,r=dk()?`rgba(255,${Math.floor(p.hot*130+80)},20,${a})`:`rgba(${200+Math.floor(p.hot*55)},${Math.floor(p.hot*110+50)},10,${a*.8})`;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fillStyle=r;ctx.fill();
+    });
+    const rx=W*.5,ry=H*.38,sc=Math.min(W,H)*.0015;
+    const bH=200*sc,bW=44*sc;
+    const lineCol=dk()?'rgba(221,232,255,':'rgba(26,18,8,';
+    // Body
+    ctx.beginPath();ctx.moveTo(rx,ry-bH*.5);ctx.bezierCurveTo(rx+bW,ry-bH*.3,rx+bW,ry+bH*.35,rx+bW*.6,ry+bH*.5);ctx.lineTo(rx-bW*.6,ry+bH*.5);ctx.bezierCurveTo(rx-bW,ry+bH*.35,rx-bW,ry-bH*.3,rx,ry-bH*.5);
+    ctx.fillStyle=dk()?'rgba(221,232,255,0.05)':'rgba(26,18,8,0.04)';ctx.strokeStyle=dk()?'rgba(221,232,255,0.18)':'rgba(26,18,8,0.14)';ctx.lineWidth=1;ctx.fill();ctx.stroke();
+    // Nose
+    ctx.beginPath();ctx.moveTo(rx,ry-bH*.5-bH*.28);ctx.lineTo(rx+bW*.52,ry-bH*.44);ctx.lineTo(rx-bW*.52,ry-bH*.44);ctx.closePath();
+    ctx.fillStyle='rgba(200,74,18,0.13)';ctx.strokeStyle='rgba(200,74,18,0.38)';ctx.fill();ctx.stroke();
+    // Fins
+    [[1],[-1]].forEach(([s])=>{
+      ctx.beginPath();ctx.moveTo(rx+bW*.6*s,ry+bH*.5);ctx.lineTo(rx+bW*1.45*s,ry+bH*.78);ctx.lineTo(rx+bW*1.35*s,ry+bH*.28);ctx.closePath();
+      ctx.fillStyle=dk()?'rgba(77,184,255,0.07)':'rgba(20,80,160,0.06)';ctx.strokeStyle=dk()?'rgba(77,184,255,0.18)':'rgba(20,80,160,0.18)';ctx.fill();ctx.stroke();
+    });
+    // Engine bell
+    ctx.beginPath();ctx.ellipse(rx,ry+bH*.64,bW*.52,bW*.22,0,0,Math.PI*2);ctx.strokeStyle=dk()?'rgba(255,107,43,0.28)':'rgba(200,74,18,0.22)';ctx.lineWidth=1.5;ctx.stroke();
+    // Glow
+    const glow=Math.sin(t*.1)*.25+.55;
+    const gr=ctx.createRadialGradient(rx,ry+bH*.68,0,rx,ry+bH*.68,bW*1.15);
+    gr.addColorStop(0,`rgba(255,170,30,${glow*.28})`);gr.addColorStop(.5,`rgba(255,70,15,${glow*.12})`);gr.addColorStop(1,'transparent');
+    ctx.beginPath();ctx.arc(rx,ry+bH*.68,bW*1.15,0,Math.PI*2);ctx.fillStyle=gr;ctx.fill();
+    // Window
+    ctx.beginPath();ctx.arc(rx,ry-bH*.04,bW*.26,0,Math.PI*2);ctx.strokeStyle=dk()?'rgba(77,184,255,0.35)':'rgba(20,80,160,0.28)';ctx.lineWidth=1;ctx.stroke();
+    // Horizontal lines
+    for(let i=0;i<4;i++){const ly=ry-bH*.38+i*bH*.26;ctx.beginPath();ctx.moveTo(rx+bW*.62,ly);ctx.lineTo(rx+bW*.78,ly);ctx.strokeStyle=dk()?'rgba(221,232,255,0.1)':'rgba(26,18,8,0.08)';ctx.lineWidth=.7;ctx.stroke();}
+    t++;requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ── HERO CHEM ── */
+(function(){
+  const c=document.getElementById('chemHeroCanvas');if(!c)return;
+  const ctx=c.getContext('2d');c.width=200;c.height=200;
+  let t=0;const cx=100,cy=100;
+  const ring=Array.from({length:6},(_,i)=>({r:46,ang:i*60,label:'C'}));
+  const subs=[{r:82,ang:0,label:'H'},{r:82,ang:60,label:'OH'},{r:82,ang:120,label:'H'},{r:82,ang:180,label:'NH₂'},{r:82,ang:240,label:'H'},{r:82,ang:300,label:'H'}];
+  function frame(){
+    ctx.clearRect(0,0,200,200);
+    const rot=t*.007;
+    const rAtoms=ring.map(a=>({x:cx+a.r*Math.cos(a.ang*Math.PI/180+rot),y:cy+a.r*Math.sin(a.ang*Math.PI/180+rot),label:a.label}));
+    for(let i=0;i<6;i++){const a=rAtoms[i],b=rAtoms[(i+1)%6];ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=dk()?'rgba(200,74,18,0.28)':'rgba(200,74,18,0.2)';ctx.lineWidth=1.4;ctx.stroke();}
+    subs.forEach((s,i)=>{
+      const base=rAtoms[i];
+      const ox=cx+s.r*Math.cos(s.ang*Math.PI/180+rot),oy=cy+s.r*Math.sin(s.ang*Math.PI/180+rot);
+      ctx.beginPath();ctx.moveTo(base.x,base.y);ctx.lineTo(ox,oy);ctx.strokeStyle=dk()?'rgba(26,122,74,0.25)':'rgba(26,122,74,0.18)';ctx.lineWidth=1;ctx.stroke();
+      ctx.beginPath();ctx.arc(ox,oy,s.label.length>1?7:5,0,Math.PI*2);
+      const col=s.label.startsWith('O')||s.label.startsWith('N')?'rgba(26,122,74,':'rgba(20,80,160,';
+      ctx.fillStyle=dk()?`${col}0.18)`:` ${col}0.12)`;ctx.fill();ctx.strokeStyle=dk()?`${col}0.5)`:` ${col}0.4)`;ctx.lineWidth=.8;ctx.stroke();
+      ctx.fillStyle=dk()?`${col}0.8)`:` ${col}0.7)`;ctx.font=`${s.label.length>1?7:8}px IBM Plex Mono`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(s.label,ox,oy);
+    });
+    rAtoms.forEach(a=>{const p=Math.sin(t*.025+a.x*.05)*.3+.7;ctx.beginPath();ctx.arc(a.x,a.y,6,0,Math.PI*2);ctx.fillStyle=dk()?`rgba(200,74,18,${p*.2})`:`rgba(200,74,18,${p*.15})`;ctx.fill();ctx.strokeStyle=`rgba(200,74,18,${p*.5})`;ctx.lineWidth=1;ctx.stroke();ctx.fillStyle=dk()?`rgba(200,74,18,0.85)`:`rgba(200,74,18,0.75)`;ctx.font='7px IBM Plex Mono';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(a.label,a.x,a.y);});
+    t++;requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ── LATTICE ── */
+(function(){
+  const c=document.getElementById('latticeCanvas');if(!c)return;
+  const ctx=c.getContext('2d');let t=0;
+  function resize(){const p=c.offsetParent||c.parentElement;c.width=p?p.clientWidth:400;c.height=c.width;}
+  resize();window.addEventListener('resize',resize);
+  function frame(){
+    ctx.clearRect(0,0,c.width,c.height);
+    const sp=44,rows=Math.ceil(c.height/sp)+2,cols=Math.ceil(c.width/sp)+2;
+    const ox=(t*.25)%sp,oy=(t*.12)%sp;
+    for(let r=0;r<rows;r++)for(let cl=0;cl<cols;cl++){
+      const x=cl*sp-ox,y=r*sp-oy,pulse=Math.sin(t*.02+r*.5+cl*.7)*.4+.6;
+      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+sp,y);ctx.strokeStyle=dk()?'rgba(77,184,255,0.1)':'rgba(26,18,8,0.08)';ctx.lineWidth=.7;ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+sp);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+sp,y+sp);ctx.strokeStyle=dk()?'rgba(200,74,18,0.06)':'rgba(200,74,18,0.05)';ctx.stroke();
+      ctx.beginPath();ctx.arc(x,y,2.2,0,Math.PI*2);ctx.fillStyle=dk()?`rgba(77,184,255,${pulse*.65})`:`rgba(26,18,8,${pulse*.45})`;ctx.fill();
+      if(r<rows-1&&cl<cols-1){const bx=x+sp/2,by=y+sp/2;ctx.beginPath();ctx.arc(bx,by,3,0,Math.PI*2);ctx.fillStyle=dk()?`rgba(200,74,18,${pulse*.55})`:`rgba(200,74,18,${pulse*.45})`;ctx.fill();}
+    }
+    t++;requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ── SIM 1: Shock Diamonds ── */
+(function(){
+  const c=document.getElementById('rocketSim');if(!c)return;
+  const ctx=c.getContext('2d');let t=0;
+  function resize(){c.width=c.offsetParent?.clientWidth||600;c.height=c.offsetParent?.clientHeight||380;}
+  resize();window.addEventListener('resize',resize);
+  function frame(){
+    const W=c.width,H=c.height;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle=dk()?'#07090e':'#f5f2ec';ctx.fillRect(0,0,W,H);
+    const cx=W*.16,cy=H*.5,nW=H*.15,nH=H*.09;
+    // Nozzle
+    ctx.beginPath();ctx.moveTo(cx-nW*.6,cy-nH);ctx.bezierCurveTo(cx-nW*.2,cy-nH,cx-nW*.18,cy-nH*.35,cx,cy-nH*.28);ctx.bezierCurveTo(cx+nW*.35,cy-nH*.08,cx+nW*.45,cy+nH*.08,cx+nW*.38,cy+nH*.28);ctx.bezierCurveTo(cx-nW*.18,cy+nH*.35,cx-nW*.2,cy+nH,cx-nW*.6,cy+nH);ctx.closePath();
+    ctx.fillStyle=dk()?'rgba(221,232,255,0.05)':'rgba(26,18,8,0.05)';ctx.strokeStyle=dk()?'rgba(221,232,255,0.22)':'rgba(26,18,8,0.18)';ctx.lineWidth=1.5;ctx.fill();ctx.stroke();
+    // Plume bg
+    const pg=ctx.createLinearGradient(cx,cy,W,cy);pg.addColorStop(0,dk()?'rgba(255,110,20,0.14)':'rgba(200,74,18,0.1)');pg.addColorStop(.6,dk()?'rgba(255,50,10,0.04)':'rgba(200,74,18,0.03)');pg.addColorStop(1,'transparent');
+    ctx.beginPath();ctx.moveTo(cx+nW*.38,cy-H*.14);ctx.lineTo(W,cy-H*.2);ctx.lineTo(W,cy+H*.2);ctx.lineTo(cx+nW*.38,cy+H*.14);ctx.closePath();ctx.fillStyle=pg;ctx.fill();
+    // Shock diamonds
+    for(let d=0;d<5;d++){
+      const ph=t*.04,dSp=W*.12,dx=cx+nW*.4+d*dSp;
+      const hh=(H*.17)*(1-d*.15)*(Math.abs(Math.sin(ph-d*.3)*.12+.9));
+      const a=Math.max(0,(.65-d*.11)*.8);
+      ctx.beginPath();ctx.moveTo(dx-dSp*.4,cy-hh);ctx.lineTo(dx+dSp*.42,cy);ctx.lineTo(dx-dSp*.4,cy+hh);ctx.lineTo(dx-dSp*.58,cy);ctx.closePath();
+      ctx.fillStyle=`rgba(255,${100+d*28},18,${a*.18})`;ctx.strokeStyle=`rgba(255,${80+d*28},18,${a*.48})`;ctx.lineWidth=.8;ctx.fill();ctx.stroke();
+      // Mach disc
+      ctx.beginPath();ctx.moveTo(dx+dSp*.42,cy-hh*.48);ctx.lineTo(dx+dSp*.42,cy+hh*.48);ctx.strokeStyle=`rgba(255,215,70,${a*.55})`;ctx.lineWidth=1.5;ctx.stroke();
+      // Label
+      ctx.fillStyle=dk()?`rgba(255,180,40,${.45-d*.07})`:`rgba(160,74,10,${.4-d*.06})`;
+      ctx.font='8px IBM Plex Mono';ctx.textAlign='center';ctx.fillText(`M${d+1}`,dx,cy+H*.22);
+    }
+    // Labels
+    ctx.fillStyle=dk()?'rgba(200,74,18,0.55)':'rgba(200,74,18,0.45)';ctx.font='8px IBM Plex Mono';ctx.textAlign='center';ctx.fillText('NOZZLE EXIT',cx,cy+nH+18);
+    t++;requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ── SIM 2: Polymer Chains ── */
+(function(){
+  const c=document.getElementById('chemSim');if(!c)return;
+  const ctx=c.getContext('2d');let t=0;
+  function resize(){c.width=c.offsetParent?.clientWidth||600;c.height=c.offsetParent?.clientHeight||380;}
+  resize();window.addEventListener('resize',resize);
+  const chains=[[],[],[]];
+  function initChains(){chains.forEach((ch,ci)=>{ch.length=0;const n=13+ci*5,yB=c.height*(0.22+ci*.27);for(let i=0;i<n;i++)ch.push({x:c.width*.08+i*(c.width*.84/(n-1)),y:yB,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,ph:Math.random()*Math.PI*2});});}
+  initChains();window.addEventListener('resize',()=>{resize();initChains();});
+  const colfn=[(a)=>dk()?`rgba(200,74,18,${a})`:`rgba(200,74,18,${a})`,(a)=>dk()?`rgba(26,122,74,${a})`:`rgba(26,122,74,${a})`,(a)=>dk()?`rgba(20,80,160,${a})`:`rgba(20,80,160,${a})`];
+  const names=['Polyethylene','PEEK structural','Nylon-6,6'];
+  function frame(){
+    const W=c.width,H=c.height;
+    ctx.clearRect(0,0,W,H);ctx.fillStyle=dk()?'#07090e':'#f5f2ec';ctx.fillRect(0,0,W,H);
+    chains.forEach((ch,ci)=>{
+      const cf=colfn[ci];const bd=W*.84/(ch.length-1);
+      ch.forEach((a,i)=>{a.vy+=Math.sin(t*.028+a.ph)*.07;a.vx+=Math.cos(t*.022+a.ph)*.04;a.vx*=.97;a.vy*=.97;a.x+=a.vx;a.y+=a.vy;if(i>0){const nb=ch[i-1],dx=a.x-nb.x,dy=a.y-nb.y,d=Math.sqrt(dx*dx+dy*dy)||1,f=(d-bd)*.05;a.vx-=f*(dx/d);a.vy-=f*(dy/d);nb.vx+=f*(dx/d);nb.vy+=f*(dy/d);}if(a.x<W*.04)a.vx+=.25;if(a.x>W*.96)a.vx-=.25;if(a.y<H*.04)a.vy+=.25;if(a.y>H*.96)a.vy-=.25;});
+      for(let i=0;i<ch.length-1;i++){const a=ch[i],b=ch[i+1];ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=cf(.32);ctx.lineWidth=1.4;ctx.stroke();if(i%3===1){const dx=b.x-a.x,dy=b.y-a.y,len=Math.sqrt(dx*dx+dy*dy)||1,px=-dy/len*3.5,py=dx/len*3.5;ctx.beginPath();ctx.moveTo(a.x+px,a.y+py);ctx.lineTo(b.x+px,b.y+py);ctx.strokeStyle=cf(.16);ctx.lineWidth=.9;ctx.stroke();}}
+      ch.forEach((a,i)=>{const r=i===0||i===ch.length-1?6.5:4.5;ctx.beginPath();ctx.arc(a.x,a.y,r,0,Math.PI*2);ctx.fillStyle=cf(.22);ctx.fill();ctx.strokeStyle=cf(.58);ctx.lineWidth=.9;ctx.stroke();if(i%4===0){const lbs=['C','C','O','C','N','C'];ctx.fillStyle=cf(.82);ctx.font='6.5px IBM Plex Mono';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(lbs[i%lbs.length],a.x,a.y);}});
+      ctx.fillStyle=cf(.44);ctx.font='8px IBM Plex Mono';ctx.textAlign='left';ctx.fillText(names[ci],W*.05,H*(.1+ci*.27));
+    });
+    t++;requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ── SIM 3: FEA ── */
+(function(){
+  const c=document.getElementById('feaSim');if(!c)return;
+  const ctx=c.getContext('2d');let t=0;
+  function resize(){c.width=c.offsetParent?.clientWidth||600;c.height=c.offsetParent?.clientHeight||380;}
+  resize();window.addEventListener('resize',resize);
+  function sCol(v,a){const r=Math.min(255,v<.5?0:((v-.5)*2*255)|0),g=Math.min(255,(v<.5?v*2*255:(1-v)*2*255)|0),b=Math.min(255,(v<.5?(1-v*2)*255:0)|0);return `rgba(${r},${g},${b},${a})`;}
+  function frame(){
+    const W=c.width,H=c.height;
+    ctx.clearRect(0,0,W,H);ctx.fillStyle=dk()?'#07090e':'#f5f2ec';ctx.fillRect(0,0,W,H);
+    const px=W*.1,py=H*.18,pw=W*.72,ph=H*.54,mc=38,mr=10,cW=pw/mc,cH=ph/mr;
+    for(let r=0;r<mr;r++)for(let cc=0;cc<mc;cc++){
+      const x=px+cc*cW,y=py+r*cH;
+      const ny=(r/mr-.5)*2,nx=cc/mc;
+      const bs=Math.abs(ny)*.72,conc=Math.exp(-(Math.pow(nx-.14,2)+Math.pow(ny,2))*7.5)*.75,tw=Math.sin(t*.04-nx*Math.PI)*.05;
+      const sv=Math.min(1,bs+conc+tw+.05);
+      ctx.fillStyle=sCol(sv,.78);ctx.fillRect(x,y,cW,cH);
+      ctx.strokeStyle=dk()?'rgba(7,9,14,0.35)':'rgba(245,242,236,0.45)';ctx.lineWidth=.35;ctx.strokeRect(x,y,cW,cH);
+    }
+    // BC markers
+    for(let r=0;r<5;r++){const by=py+r*(ph/5)+ph/10;ctx.beginPath();ctx.moveTo(px-18,by);ctx.lineTo(px,by);ctx.strokeStyle=dk()?'rgba(221,232,255,0.35)':'rgba(26,18,8,0.28)';ctx.lineWidth=1.8;ctx.stroke();for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(px-10-i*6,by-5);ctx.lineTo(px-18-i*6,by);ctx.lineTo(px-10-i*6,by+5);ctx.strokeStyle=dk()?'rgba(221,232,255,0.2)':'rgba(26,18,8,0.18)';ctx.stroke();}}
+    // Load arrow
+    const lm=18+Math.sin(t*.05)*2.5;
+    ctx.beginPath();ctx.moveTo(px+pw+36,py+ph*.5);ctx.lineTo(px+pw+lm,py+ph*.5);ctx.strokeStyle='rgba(200,74,18,0.75)';ctx.lineWidth=2.2;ctx.stroke();
+    ctx.beginPath();ctx.moveTo(px+pw+lm-7,py+ph*.5-5);ctx.lineTo(px+pw+lm,py+ph*.5);ctx.lineTo(px+pw+lm-7,py+ph*.5+5);ctx.strokeStyle='rgba(200,74,18,0.75)';ctx.stroke();
+    // Legend
+    const lx=px+pw+48,ly=py,lw=12,lh=ph;
+    for(let i=0;i<50;i++){ctx.fillStyle=sCol(i/49,.85);ctx.fillRect(lx,ly+i*(lh/50),lw,lh/50+1);}
+    ctx.strokeStyle=dk()?'rgba(221,232,255,0.15)':'rgba(26,18,8,0.12)';ctx.lineWidth=.7;ctx.strokeRect(lx,ly,lw,lh);
+    ctx.fillStyle=dk()?'rgba(221,232,255,0.4)':'rgba(26,18,8,0.38)';ctx.font='7.5px IBM Plex Mono';ctx.textAlign='left';
+    ctx.fillText('Hi',lx+lw+3,ly+8);ctx.fillText('Lo',lx+lw+3,ly+lh-2);
+    ctx.save();ctx.translate(lx-10,ly+lh/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.fillText('σ VON MISES',0,0);ctx.restore();
+    ctx.fillStyle=dk()?'rgba(221,232,255,0.28)':'rgba(26,18,8,0.28)';ctx.font='8px IBM Plex Mono';ctx.textAlign='center';
+    ctx.fillText('Fixed Support',px+6,py+ph+15);ctx.fillText('Load F',px+pw+30,py+ph+15);
+    t++;requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ── SIM 4: Flight Trajectory ── */
+(function(){
+  const c=document.getElementById('flightSim');if(!c)return;
+  const ctx=c.getContext('2d');let t=0,trail=[],bp=0,vx=.006,vy=-.008,x=.08,y=.88;
+  function resize(){c.width=c.offsetParent?.clientWidth||600;c.height=c.offsetParent?.clientHeight||380;}
+  resize();window.addEventListener('resize',resize);
+  function frame(){
+    const W=c.width,H=c.height;
+    ctx.clearRect(0,0,W,H);
+    const sky=ctx.createLinearGradient(0,0,0,H);
+    if(dk()){sky.addColorStop(0,'#020308');sky.addColorStop(1,'#07090e');}else{sky.addColorStop(0,'#a8d0f0');sky.addColorStop(.45,'#d4e8f8');sky.addColorStop(1,'#e8f0e0');}
+    ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+    ctx.fillStyle=dk()?'rgba(26,18,8,0.55)':'rgba(100,80,30,0.3)';ctx.fillRect(0,H*.9,W,H*.1);
+    ctx.fillStyle=dk()?'rgba(221,232,255,0.12)':'rgba(26,18,8,0.12)';ctx.fillRect(W*.08-3,H*.82,6,H*.08);ctx.fillRect(W*.04,H*.89,W*.08,H*.01);
+    const layers=[{y:.72,l:'Karman Line (100km)'},{y:.52,l:'Thermosphere'},{y:.28,l:'Exosphere'}];
+    layers.forEach(l=>{
+      ctx.setLineDash([5,10]);ctx.beginPath();ctx.moveTo(0,H*l.y);ctx.lineTo(W,H*l.y);ctx.strokeStyle=dk()?'rgba(77,184,255,0.07)':'rgba(20,80,160,0.06)';ctx.lineWidth=.7;ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle=dk()?'rgba(77,184,255,0.26)':'rgba(20,80,160,0.28)';ctx.font='7.5px IBM Plex Mono';ctx.textAlign='right';ctx.fillText(l.l,W-8,H*l.y-4);
+    });
+    bp++;const b1=bp<185,b2=bp>225&&bp<345;
+    if(b1||b2){const th=b1?.00022:.00018,ang=Math.atan2(vy,vx);vx+=Math.cos(ang)*th;vy+=Math.sin(ang)*th;}
+    vy+=.000038;vx*=1-(y<.5?.0002:.00005);x+=vx;y+=vy;
+    if(y>.88){y=.88;vy=Math.abs(vy)*.35;}if(y<.02){y=.02;vy=Math.abs(vy)*.4;}
+    if(x>.98){x=.08;y=.88;vx=.006;vy=-.008;bp=0;trail=[];}
+    trail.push({x:x*W,y:y*H,burn:b1||b2});if(trail.length>450)trail.shift();
+    for(let i=1;i<trail.length;i++){const p=trail[i],pp=trail[i-1];const a=(i/trail.length)*.65;ctx.beginPath();ctx.moveTo(pp.x,pp.y);ctx.lineTo(p.x,p.y);ctx.strokeStyle=p.burn?`rgba(255,${100+i*.28|0},18,${a})`:dk()?`rgba(77,184,255,${a*.45})`:`rgba(20,80,160,${a*.4})`;ctx.lineWidth=p.burn?1.8:1;ctx.stroke();}
+    const vxC=x*W,vyC=y*H,ang=Math.atan2(vy,vx);
+    ctx.save();ctx.translate(vxC,vyC);ctx.rotate(ang+Math.PI/2);
+    const s=Math.min(W,H)*.015;
+    ctx.beginPath();ctx.moveTo(0,-s*2);ctx.lineTo(s*.48,-s*.5);ctx.lineTo(s*.28,s*1.4);ctx.lineTo(-s*.28,s*1.4);ctx.lineTo(-s*.48,-s*.5);ctx.closePath();
+    ctx.fillStyle=dk()?'rgba(221,232,255,0.85)':'rgba(26,18,8,0.72)';ctx.fill();
+    if(b1||b2){ctx.beginPath();ctx.moveTo(-s*.28,s*1.4);ctx.lineTo(0,s*(2.4+Math.random()*1.4));ctx.lineTo(s*.28,s*1.4);ctx.fillStyle='rgba(255,120,20,0.9)';ctx.fill();}
+    ctx.restore();
+    ctx.fillStyle=dk()?'rgba(221,232,255,0.38)':'rgba(26,18,8,0.38)';ctx.font='8px IBM Plex Mono';ctx.textAlign='left';
+    const alt=Math.max(0,((0.88-y)*100)|0),spd=(Math.sqrt(vx*vx+vy*vy)*1200)|0;
+    ctx.fillText(`ALT: ${alt} km`,10,18);ctx.fillText(`V: ${spd} m/s`,10,30);ctx.fillText(b1?'BURN-1 🔥':b2?'BURN-2 🔥':'COAST',10,42);
+    t++;requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ── SONAR ── */
+(function(){
+  const c=document.getElementById('sonarViz');if(!c)return;
+  const ctx=c.getContext('2d');let t=0;
+  function resize(){const p=c.offsetParent||c.parentElement;c.width=p?p.clientWidth:500;c.height=(c.width*(3/4))|0;}
+  resize();window.addEventListener('resize',resize);
+  const tgts=[{a:.8,r:.52},{a:1.85,r:.68},{a:3.1,r:.38},{a:4.4,r:.62},{a:5.0,r:.29}];
+  function frame(){
+    const W=c.width,H=c.height;
+    ctx.clearRect(0,0,W,H);ctx.fillStyle=dk()?'#07090e':'#edeae2';ctx.fillRect(0,0,W,H);
+    const cx=W*.3,cy=H*.5,sl=Math.min(cx,cy)*1.25;
+    const sweep=(t*.024)%(Math.PI*2);
+    // Sweep
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(sweep)*sl,cy+Math.sin(sweep)*sl);
+    ctx.strokeStyle=dk()?'rgba(200,74,18,0.65)':'rgba(200,74,18,0.55)';ctx.lineWidth=2;ctx.stroke();
+    for(let i=1;i<=18;i++){const a=sweep-i*.038;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*sl,cy+Math.sin(a)*sl);ctx.strokeStyle=dk()?`rgba(200,74,18,${(1-i/18)*.07})`:`rgba(200,74,18,${(1-i/18)*.05})`;ctx.lineWidth=.8;ctx.stroke();}
+    // Rings
+    for(let r=1;r<=4;r++){const rad=sl*r/4;ctx.beginPath();ctx.arc(cx,cy,rad,0,Math.PI*2);ctx.strokeStyle=dk()?'rgba(20,80,160,0.18)':'rgba(20,80,160,0.14)';ctx.lineWidth=.7;ctx.stroke();ctx.fillStyle=dk()?'rgba(20,80,160,0.35)':'rgba(20,80,160,0.3)';ctx.font='6.5px IBM Plex Mono';ctx.textAlign='left';ctx.fillText(`${r*25}m`,cx+rad+3,cy);}
+    // Crosshairs
+    ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.strokeStyle=dk()?'rgba(20,80,160,0.09)':'rgba(20,80,160,0.08)';ctx.lineWidth=.55;ctx.stroke();
+    // Echoes
+    tgts.forEach(tg=>{const tx=cx+Math.cos(tg.a)*sl*tg.r,ty=cy+Math.sin(tg.a)*sl*tg.r;const ad=((tg.a-sweep)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);const fade=Math.exp(-ad*.82);if(fade>.025){ctx.beginPath();ctx.arc(tx,ty,4,0,Math.PI*2);ctx.fillStyle=`rgba(26,122,74,${fade*.88})`;ctx.fill();ctx.beginPath();ctx.arc(tx,ty,8,0,Math.PI*2);ctx.strokeStyle=`rgba(26,122,74,${fade*.38})`;ctx.lineWidth=.9;ctx.stroke();}});
+    // Waveform panel
+    const wp=W*.58,wpW=W*.36,wpH=H*.48,wpY=H*.26;
+    ctx.strokeStyle=dk()?'rgba(221,232,255,0.07)':'rgba(26,18,8,0.07)';ctx.lineWidth=.6;ctx.strokeRect(wp,wpY,wpW,wpH);
+    ctx.fillStyle=dk()?'rgba(221,232,255,0.28)':'rgba(26,18,8,0.28)';ctx.font='6.5px IBM Plex Mono';ctx.textAlign='left';ctx.fillText('ACOUSTIC RETURN',wp+4,wpY-4);
+    ctx.beginPath();for(let i=0;i<wpW;i++){const wt=(i/wpW)*Math.PI*8,e1=Math.exp(-(Math.pow((i/wpW-.3)*3,2))),e2=Math.exp(-(Math.pow((i/wpW-.65)*4,2))),wave=(Math.sin(wt+t*.06)*e1+Math.sin(wt*1.3+t*.04)*e2)*wpH*.28,py2=wpY+wpH*.5+wave;if(i===0)ctx.moveTo(wp+i,py2);else ctx.lineTo(wp+i,py2);}
+    ctx.strokeStyle=dk()?'rgba(200,74,18,0.58)':'rgba(200,74,18,0.52)';ctx.lineWidth=1.2;ctx.stroke();
+    t++;requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ── PARALLAX ── */
+document.addEventListener('mousemove',e=>{
+  const x=(e.clientX/window.innerWidth-.5)*14,y=(e.clientY/window.innerHeight-.5)*9;
+  const cc=document.getElementById('chemHeroCanvas');if(cc)cc.style.transform=`translate(${x*.45}px,${y*.45}px)`;
+});
+</script>
+</body>
+</html>
